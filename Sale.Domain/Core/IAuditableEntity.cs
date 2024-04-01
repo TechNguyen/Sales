@@ -8,19 +8,18 @@ namespace Sale.Domain.Core
 {
 	public interface IAuditableEntity
 	{
-		DateTime CreateDate { get; set; }
-		string? CreateBy { get; set; }
-		Guid? CreatedID {  get; set; }
+		DateTime CreatedDate { get; set; }
+		string? CreatedBy { get; set; }
+		Guid? CreatedID { get; set; }
 
+		DateTime UpdatedDate { get; set; }
+		Guid? UpdatedID { get; set; }
+		string? UpdatedBy { get; set; }
+		bool? IsDelete { get; set; }
 
-		DateTime UpdateDate { get; set; }
-		Guid? UpdateID { get; set; }
-		string? UpdateBy {  get; set; }
+		DateTime? DeleteTime { get; set; }
 
-
-		bool? isDelete { get;set; }
-		DateTime DeleteDate { get; set; }
-		Guid? DeleteID { get; set; }
-		string DeleteBy { get; set; }
+		Guid? DeleteId { get; set; }
+		string? DeleteBy { get; set; }
 	}
 }

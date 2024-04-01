@@ -31,8 +31,4 @@
     <ProjectReference Include="..\Sale.Repository\Sale.Repository.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Common\" />
-  </ItemGroup>
-
 </Project>
