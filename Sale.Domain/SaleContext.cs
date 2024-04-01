@@ -25,6 +25,7 @@ namespace Sale.Domain
 		{
 			base.OnModelCreating(builder);
 
+			this.SeedRoles(builder);
 			builder.Entity<AppUser>().ToTable("AppUser");
 			builder.Entity<AppRole>().ToTable("AppRole");
 
@@ -34,6 +35,18 @@ namespace Sale.Domain
 			builder.Entity<IdentityUserClaim<Guid>>().ToTable("AppUserClaim");
 			builder.Entity<IdentityUserLogin<Guid>>().ToTable("AppUserLogin");
 		}
+
+		private void SeedRoles(ModelBuilder builder)
+		{
+			builder.Entity<AppRole>().HasData(
+				new AppRole() { Id = Guid.NewGuid(), Name = "Admin", ConcurrencyStamp = "1", NormalizedName = "Admin" },
+				new AppRole() { Id = Guid.NewGuid(), Name = "User", ConcurrencyStamp = "2", NormalizedName = "User" }
+				);
+		}
+
 		public DbSet<AppRole> AppRoles { get; set; }
+
+
+
 	}
 }

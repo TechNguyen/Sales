@@ -21,7 +21,6 @@ namespace Sales.Controllers
 
 		private readonly UserManager<AppUser> _user;
 
-		private readonly RoleManager<AppRole> _roleManager;
 
 
 		private readonly IConfiguration _configuration;
@@ -53,7 +52,7 @@ namespace Sales.Controllers
 					return StatusCode(StatusCodes.Status500InternalServerError,
 					 new ResponseWithMessageDto { Status = "Error", Message = "Tài khoản đã tồn tại." });
 				}
-				var emailCheckExits = _user.FindByEmailAsync(register.Email);
+				var emailCheckExits = await _user.FindByEmailAsync(register.Email);
 				if(emailCheckExits != null)
 				{
 					return StatusCode(StatusCodes.Status500InternalServerError,
@@ -75,6 +74,8 @@ namespace Sales.Controllers
 				var success = await _user.CreateAsync(appUser,  register.Password);
 				if(success.Succeeded)
 				{
+
+
 					return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<dynamic>
 					{
 						Status = StatusConstant.SUCCESS,
@@ -109,8 +110,12 @@ namespace Sales.Controllers
 
 
 
-
-
+		/// <summary>
+		/// Login dto
+		/// </summary>
+		/// <param name="login"></param>
+		/// <returns></returns>
+		[HttpPost("login")]
 		public async Task<IActionResult> Login([FromBody] LoginDto login)
 		{
 
@@ -200,7 +205,7 @@ namespace Sales.Controllers
 								expired = token.ValidTo
 							},
 							
-							Message = "Đăng ký thành công"
+							Message = "Đăng nhập thành công"
 						});
 					}
 					
