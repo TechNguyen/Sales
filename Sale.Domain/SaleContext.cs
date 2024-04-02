@@ -46,6 +46,10 @@ namespace Sale.Domain
 
 		public DbSet<AppRole> AppRoles { get; set; }
 
+		public DbSet<Product> Products { get; set; }
+		public DbSet<Branch> Branchs { get; set; }
+		public DbSet<Origin> Origin { get; set; }
+
 
 
 	}
