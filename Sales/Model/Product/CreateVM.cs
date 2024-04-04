@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel;
 
-namespace Sales.Model.ProductModel
+namespace Sales.Model.Product
 {
 	public class CreateVM
 	{
@@ -19,5 +19,6 @@ namespace Sales.Model.ProductModel
 		public int? rate { get; set; }
 		public string? ProductType { get; set; }
 		public int? ProductSold { get; set; }
-	}
+        public List<IFormFile>? ListFileImg { get; set; }
+    }
 }

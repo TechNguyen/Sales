@@ -7,8 +7,13 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Sale.Domain;
 using Sale.Domain.Entities;
+//using Sale.Repository.BranchRepository;
 using Sale.Repository.Core;
+using Sale.Repository.ProductRepository;
 using Sale.Service.Core;
+using Sale.Service.ProductService;
+using Sales;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -87,26 +92,38 @@ builder.Services.AddAuthentication(option =>
 	};
 });
 
-// repo setting
+//// repo setting
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
-
 var repositoryTypes = typeof(IRepository<>).Assembly.GetTypes().Where(x => !string.IsNullOrEmpty(x.Namespace) && x.Namespace.StartsWith("Sale.Repository") && x.Name.EndsWith("Repository"));
 foreach (var repo in repositoryTypes.Where(t => t.IsInterface))
 {
 	var impl = repositoryTypes.FirstOrDefault(c => c.IsClass && repo.Name.Substring(1) == c.Name);
-	if (impl != null) builder.Services.AddScoped(repo, impl); 
+	if (impl != null)
+	{
+		builder.Services.AddScoped(repo, impl);
+	}
 }
 
 builder.Services.AddScoped(typeof(IService<>), typeof(Service<>));
 var serviceTypes = typeof(IService<>).Assembly.GetTypes().Where(x => !string.IsNullOrEmpty(x.Namespace) && x.Namespace.StartsWith("Sale.Service") && x.Name.EndsWith("Service"));
 foreach (var serc in serviceTypes.Where(t => t.IsInterface))
 {
-	var impl = repositoryTypes.FirstOrDefault(c => c.IsClass && serc.Name.Substring(1) == c.Name);
-	if (impl != null) builder.Services.AddScoped(serc, impl);
+	var impl = serviceTypes.FirstOrDefault(c => c.IsClass && serc.Name.Substring(1) == c.Name);
+	if (impl != null)
+	{
+		builder.Services.AddScoped(serc, impl);
+	}
 }
+
+
+builder.Services.AddScoped<IProductRepository, ProductRepository>();
+builder.Services.AddScoped<IProductService, ProductService>();
+
+
 
 builder.Services.AddHttpContextAccessor();
 
+builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
 var app = builder.Build();
 

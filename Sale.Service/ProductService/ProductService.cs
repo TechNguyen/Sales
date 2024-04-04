@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Sale.Domain;
 using Sale.Domain.Entities;
-using Sale.Repository.BranchRepository;
-using Sale.Repository.OriginRepository;
+//using Sale.Repository.BranchRepository;
+//using Sale.Repository.OriginRepository;
 using Sale.Repository.ProductRepository;
 using Sale.Service.Common;
 using Sale.Service.Core;
@@ -18,15 +18,15 @@ namespace Sale.Service.ProductService
 	public class ProductService : Service<Product>, IProductService
 	{
 		private readonly IProductRepository _productRepository;
-		private readonly IBranchRepository _branchRepository;
-		private readonly IOriginRepository _originRepository;
-		public ProductService(IProductRepository productRepository, 
-			IBranchRepository branchRepository,
-			IOriginRepository originRepository
+		//private readonly IBranchRepository _branchRepository;
+		//private readonly IOriginRepository _originRepository;
+		public ProductService(IProductRepository productRepository
+			//IBranchRepository branchRepository,
+			//IOriginRepository originRepository
 			) : base(productRepository)
 		{
-			_branchRepository = branchRepository;
-			_originRepository = originRepository;
+			//_branchRepository = branchRepository;
+			//_originRepository = originRepository;
 			_productRepository = productRepository;
 		}
 
@@ -36,11 +36,11 @@ namespace Sale.Service.ProductService
 			{
 				var query = from q in _productRepository.GetQueryable()
 
-							join btbl in _branchRepository.GetQueryable() on q.BranchId equals btbl.Id into btbl
-							from bm in btbl.DefaultIfEmpty()
+							//join btbl in _branchRepository.GetQueryable() on q.BranchId equals btbl.Id into btbl
+							//from bm in btbl.DefaultIfEmpty()
 
-							join otbl in _originRepository.GetQueryable() on q.OriginId equals otbl.Id into otbl
-							from  om  in otbl.DefaultIfEmpty()
+							//join otbl in _originRepository.GetQueryable() on q.OriginId equals otbl.Id into otbl
+							//from  om  in otbl.DefaultIfEmpty()
 
 							select new ProductDto
 							{
@@ -48,8 +48,8 @@ namespace Sale.Service.ProductService
 								ProductName = q.ProductName,
 								ProductDescription = q.ProductDescription,
 								ProductMaterial = q.ProductMaterial,
-								BranchName = bm.BranchName,
-								OriginName = om.OriginName,
+								//BranchName = bm.BranchName,
+								//OriginName = om.OriginName,
 								ProductType = q.ProductType,
 								comment = q.comment,
 								views = q.views,

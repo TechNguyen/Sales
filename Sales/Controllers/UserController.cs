@@ -21,7 +21,7 @@ namespace Sales.Controllers
 
 		private readonly UserManager<AppUser> _user;
 
-
+		private readonly RoleManager<AppRole> _roleManager;
 
 		private readonly IConfiguration _configuration;
 
@@ -58,9 +58,6 @@ namespace Sales.Controllers
 					return StatusCode(StatusCodes.Status500InternalServerError,
 				 new ResponseWithMessageDto { Status = "Error", Message = "Email đã tồn tại." });
 				}
-
-
-
 
 				AppUser appUser = new AppUser()
 				{
@@ -210,8 +207,6 @@ namespace Sales.Controllers
 					}
 					
 				}
-
-
 			
 			}
 			catch (Exception ex)

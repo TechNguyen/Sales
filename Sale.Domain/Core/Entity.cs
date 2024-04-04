@@ -9,9 +9,6 @@ using System.Threading.Tasks;
 
 namespace Sale.Domain.Core
 {
-	public abstract class BaseEntity
-	{
-	}
 	[PrimaryKey(nameof(Id))]
 	public abstract class Entity : BaseEntity, IEntity
 	{
