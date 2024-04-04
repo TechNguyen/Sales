@@ -1,17 +1,19 @@
 ﻿using Sale.Domain.Entities;
 using Sale.Service.Common;
 using Sale.Service.Core;
-using Sale.Service.Dtos.ProductDto;
+using Sale.Service.Dtos.OriginDto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Sale.Service.ProductService
+namespace Sale.Service.OriginService
 {
-	public interface IProductService : IService<Product>
+	public interface IOriginService : IService<Origin>
 	{
-		Task<PageList<ProductDto>> GetDataByPage(ProductSearchDto searchDto);
+		Task<PageList<OriginDto>> GetDataByPage(OriginSearchDto searchDto);
+
+
 	}
 }

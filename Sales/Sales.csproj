@@ -36,8 +36,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Model\BranchModel\" />
-    <Folder Include="Model\OriginModel\" />
     <Folder Include="Model\NewFolder\" />
     <Folder Include="Model\UserModel\" />
   </ItemGroup>

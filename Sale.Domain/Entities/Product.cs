@@ -16,7 +16,6 @@ namespace Sale.Domain.Entities
 		public Guid? BranchId { get; set; }
 		public string? CategoryId { get; set;}
 		public Guid? OriginId { get; set; }
-		[DisplayName("Tên sản phẩm")]
 		public string ProductName { get; set; }
         public decimal? ProdcutPrice { get; set; }
         public int? ProductQuanlity { get; set; }

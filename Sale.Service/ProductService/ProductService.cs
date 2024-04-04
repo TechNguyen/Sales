@@ -1,8 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc.Filters;
 using Sale.Domain;
 using Sale.Domain.Entities;
-//using Sale.Repository.BranchRepository;
-//using Sale.Repository.OriginRepository;
+using Sale.Repository.BranchRepository;
 using Sale.Repository.ProductRepository;
 using Sale.Service.Common;
 using Sale.Service.Core;
@@ -18,38 +17,35 @@ namespace Sale.Service.ProductService
 	public class ProductService : Service<Product>, IProductService
 	{
 		private readonly IProductRepository _productRepository;
-		//private readonly IBranchRepository _branchRepository;
+
+		private readonly IBranchRepository _branchRepository;
 		//private readonly IOriginRepository _originRepository;
-		public ProductService(IProductRepository productRepository
-			//IBranchRepository branchRepository,
+		public ProductService(IProductRepository productRepository,
+			IBranchRepository branchRepository
 			//IOriginRepository originRepository
 			) : base(productRepository)
 		{
-			//_branchRepository = branchRepository;
+			_branchRepository = branchRepository;
 			//_originRepository = originRepository;
 			_productRepository = productRepository;
 		}
 
-		public PageList<ProductDto> GetDataByPage(ProductSearchDto searchDto)
+		public async Task<PageList<ProductDto>> GetDataByPage(ProductSearchDto searchDto)
 		{
 			try
 			{
 				var query = from q in _productRepository.GetQueryable()
 
-							//join btbl in _branchRepository.GetQueryable() on q.BranchId equals btbl.Id into btbl
-							//from bm in btbl.DefaultIfEmpty()
 
-							//join otbl in _originRepository.GetQueryable() on q.OriginId equals otbl.Id into otbl
-							//from  om  in otbl.DefaultIfEmpty()
-
+							join  btbl in _branchRepository.GetQueryable() on q.BranchId equals btbl.Id into bt
+							from b in bt.DefaultIfEmpty()
 							select new ProductDto
 							{
 								ProdcutPrice = q.ProdcutPrice,
 								ProductName = q.ProductName,
 								ProductDescription = q.ProductDescription,
 								ProductMaterial = q.ProductMaterial,
-								//BranchName = bm.BranchName,
-								//OriginName = om.OriginName,
+								BranchName = b.BranchName,
 								ProductType = q.ProductType,
 								comment = q.comment,
 								views = q.views,
