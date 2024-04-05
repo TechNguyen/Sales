@@ -13,6 +13,7 @@ namespace Sale.Repository.OriginRepository
 	{
 		public OriginRepository(SaleContext context) : base(context)
 		{
+
 		}
 	}
 }

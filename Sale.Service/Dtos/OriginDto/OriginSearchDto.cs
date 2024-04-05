@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Sale.Service.Dtos.OriginDto
 {
-	internal class OriginSearchDto : SearchBase
+	public class OriginSearchDto : SearchBase
 	{
 		public string? OriginName { get; set; }
 	}

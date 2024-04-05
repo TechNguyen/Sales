@@ -10,6 +10,7 @@ using AutoMapper;
 using Sales.Model.Origin;
 using Sale.Repository.OriginRepository;
 using Sale.Service.OriginService;
+using Sale.Service.Dtos.OriginDto;
 
 namespace Sales.Controllers
 {
@@ -54,13 +55,13 @@ namespace Sales.Controllers
 
 		[HttpGet("getall")]
 
-		public async Task<IActionResult> GetDataByPage([FromBody] BranchSearchDto searchEntity)
+		public async Task<IActionResult> GetDataByPage([FromBody]OriginSearchDto searchEntity)
 		{
 
 			try
 			{
-				var obj = await _originService.GetDataByPage(searchEntity);
-				return StatusCode(StatusCodes.Status201Created, new ResponseWithDataDto<PageList<BranchDto>?>
+				var obj = await _originService.GetDataBypage(searchEntity);
+				return StatusCode(StatusCodes.Status201Created, new ResponseWithDataDto<PageList<OriginDto>?>
 				{
 					Data = obj,
 					Status = StatusConstant.SUCCESS,

@@ -1,10 +1,8 @@
 ﻿using Sale.Domain.Entities;
-using Sale.Repository.Core;
 using Sale.Repository.OriginRepository;
 using Sale.Service.Common;
 using Sale.Service.Core;
 using Sale.Service.Dtos.OriginDto;
-using Sale.Service.Dtos.ProductDto;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,36 +13,34 @@ namespace Sale.Service.OriginService
 {
 	public class OriginService : Service<Origin>, IOriginService
 	{
-
 		private readonly IOriginRepository _originRepository;
-
-		public OriginService(IOriginRepository originRepository) : base(originRepository)
+		public OriginService(
+			IOriginRepository originRepository) : base(originRepository)
 		{
-			_originRepository = originRepository;
+			_originRepository = originRepository; 
 		}
 
-		public async Task<PageList<OriginDto>> GetDataByPage(OriginSearchDto searchDto)
+		public async Task<PageList<OriginDto?>> GetDataBypage(OriginSearchDto searchDto)
 		{
 			try
 			{
-				var query = from q in _originRepository.GetQueryable()
+				var querry = from q in _originRepository.GetQueryable()
+							 select new OriginDto
+							 {
+								 OriginName = q.OriginName
+							 };
 
-							select new OriginDto
-							{
-								OriginName = q.OriginName
-							};
-
-				if (searchDto != null)
+				if(searchDto != null)
 				{
-					if (!string.IsNullOrEmpty(searchDto.OriginName))
+					if (searchDto.OriginName !=	null) 
 					{
-						query = query.Where(x => x.OriginName.RemoveAccentsUnicode().ToLower().Contains(searchDto.OriginName.ToLower()));
+						querry = querry.Where(x => x.OriginName == searchDto.OriginName);
 					}
 				}
-				var items = PageList<OriginDto>.Cretae(query, searchDto);
-				return items;
+				var data = PageList<OriginDto>.Cretae(querry, searchDto);
+				return data;
 			}
-			catch (Exception ex)
+			catch (Exception e)
 			{
 				return null;
 			}

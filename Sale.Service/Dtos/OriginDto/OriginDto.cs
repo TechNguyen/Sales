@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Sale.Service.Dtos.OriginDto
 {
-	internal class OriginDto
+	public class OriginDto
 	{
 		public string? OriginName { get; set; }
 
