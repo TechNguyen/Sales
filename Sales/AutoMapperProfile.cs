@@ -13,7 +13,7 @@ namespace Sales
 			// Lấy ra tất cả Model controller
 			var dto = typeof(ProductDto).Assembly.GetTypes().Where(t => !string.IsNullOrEmpty(t.Namespace) && t.Namespace.StartsWith("Sale.Service.Dtos") && t.Name.EndsWith("Dto"));
 			//Láy ra entity
-			var entityTypes = typeof(AppRole).Assembly.GetTypes().Where(t => !string.IsNullOrEmpty(t.Namespace) && t.Namespace.StartsWith("Sale.Domain.Entities"));
+			var entityTypes = typeof(Product).Assembly.GetTypes().Where(t => !string.IsNullOrEmpty(t.Namespace) && t.Namespace.StartsWith("Sale.Domain.Entities"));
 			//Lấy ra modelVM
 			var modelVM  = typeof(CreateVM).Assembly.GetTypes().Where(t => !string.IsNullOrEmpty(t.Namespace) && t.Namespace.StartsWith("Sales.Model") && t.Name.EndsWith("VM"));
 

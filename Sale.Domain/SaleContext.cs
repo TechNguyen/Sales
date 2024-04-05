@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Sale.Domain
 {
-    public class SaleContext : IdentityDbContext<AppUser, AppRole, Guid>
+    public class SaleContext : IdentityDbContext<IdentityUser>
 	{
 
 
@@ -24,32 +24,23 @@ namespace Sale.Domain
 		protected override void OnModelCreating(ModelBuilder builder)
 		{
 			base.OnModelCreating(builder);
-
 			this.SeedRoles(builder);
-			builder.Entity<AppUser>().ToTable("AppUser");
-			builder.Entity<AppRole>().ToTable("AppRole");
-
-			builder.Entity<IdentityUserToken<Guid>>().ToTable("AppUserToken");
-			builder.Entity<IdentityUserRole<Guid>>().ToTable("AppUserRole");
-			builder.Entity<IdentityRoleClaim<Guid>>().ToTable("AppRoleClaim");
-			builder.Entity<IdentityUserClaim<Guid>>().ToTable("AppUserClaim");
-			builder.Entity<IdentityUserLogin<Guid>>().ToTable("AppUserLogin");
 		}
 
 		private void SeedRoles(ModelBuilder builder)
 		{
-			builder.Entity<AppRole>().HasData(
-				new AppRole() { Id = Guid.NewGuid(), Name = "Admin", ConcurrencyStamp = "1", NormalizedName = "Admin" },
-				new AppRole() { Id = Guid.NewGuid(), Name = "User", ConcurrencyStamp = "2", NormalizedName = "User" }
-				);
+			builder.Entity<IdentityRole>().HasData(
+					new IdentityRole() { Name = "Admin", NormalizedName = "Admin", ConcurrencyStamp = "1" },
+					new IdentityRole() { Name = "User", NormalizedName = "User", ConcurrencyStamp = "2" }
+					);
 		}
 
-		public DbSet<AppRole> AppRoles { get; set; }
 
 		public DbSet<Product> Products { get; set; }
 		public DbSet<Branch> Branchs { get; set; }
 		public DbSet<Origin> Origin { get; set; }
 
+		public DbSet<FileImage> fileImages { get; set; }
 
 
 	}

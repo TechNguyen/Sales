@@ -13,5 +13,7 @@ namespace Sale.Service.ProductService
 	public interface IProductService : IService<Product>
 	{
 		Task<PageList<ProductDto>> GetDataByPage(ProductSearchDto searchDto);
+
+		ProductDetailDto? FindDetailProduct(Guid id);
 	}
 }

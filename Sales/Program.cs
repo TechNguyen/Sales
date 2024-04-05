@@ -10,6 +10,8 @@ using Sale.Domain.Entities;
 using Sale.Repository.Core;
 using Sale.Repository.ProductRepository;
 using Sale.Service.Core;
+using Sale.Service.Dtos;
+using Sale.Service.EmailService;
 using Sale.Service.ProductService;
 using Sales;
 using System.Reflection;
@@ -59,7 +61,12 @@ builder.Services.AddDbContext<SaleContext>(options =>
 });
 
 
-builder.Services.AddIdentity<AppUser, AppRole>(options =>
+//builder.Services.ADDIDE<IdentityUser>(options => options.SignIn.RequireConfirmedAccount = true)
+//.AddRoles<IdentityRole>()
+//.AddEntityFrameworkStores<UserAccountContext>()
+//.AddDefaultTokenProviders();
+
+builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 {
 	options.Password.RequireDigit = true;
 	options.Password.RequireLowercase = true;
@@ -91,6 +98,12 @@ builder.Services.AddAuthentication(option =>
 	};
 });
 
+
+builder.Services.AddAuthorization(options =>
+{
+	options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+});
+
 //// repo setting
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));
 var repositoryTypes = typeof(IRepository<>).Assembly.GetTypes().Where(x => !string.IsNullOrEmpty(x.Namespace) && x.Namespace.StartsWith("Sale.Repository") && x.Name.EndsWith("Repository"));
@@ -113,17 +126,27 @@ foreach (var serc in serviceTypes.Where(t => t.IsInterface))
 		builder.Services.AddScoped(serc, impl);
 	}
 }
-
-
-builder.Services.AddScoped<IProductRepository, ProductRepository>();
-builder.Services.AddScoped<IProductService, ProductService>();
-
-
-
 builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfile));
 
+
+builder.Services.AddScoped<IEmailService, EmailService>();
+
+builder.Services.Configure<SMTP>(builder.Configuration.GetSection("SMTPConfig"));
+
+
+builder.Services.AddCors(options =>
+{
+	options.AddPolicy("AllowAnyOrigin",
+		 builder =>
+		 {
+			 builder.WithOrigins("*")
+					 .AllowAnyOrigin()
+					.AllowAnyMethod()
+					.AllowAnyHeader();
+		 });
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

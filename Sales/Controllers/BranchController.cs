@@ -29,7 +29,6 @@ namespace Sales.Controllers
 
 
 		[HttpPost("create")]
-		[Authorize]
 		public async Task<IActionResult> Create([FromForm] CreateVM entity)
 		{
 			try
@@ -57,7 +56,7 @@ namespace Sales.Controllers
 
 		[HttpGet("getall")]
 
-		public async Task<IActionResult> GetDataByPage([FromBody] BranchSearchDto searchEntity)
+		public async Task<IActionResult> GetDataByPage([FromForm] BranchSearchDto searchEntity)
 		{
 
 			try

@@ -36,8 +36,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Model\NewFolder\" />
+    <Folder Include="Model\FileImage\" />
     <Folder Include="Model\UserModel\" />
+    <Folder Include="Uploads\" />
   </ItemGroup>
 
 </Project>

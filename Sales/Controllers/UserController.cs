@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
@@ -7,6 +8,7 @@ using Sale.Domain.Entities;
 using Sale.Service.Constant;
 using Sale.Service.Dtos;
 using Sale.Service.Dtos.UserDto;
+using Sale.Service.EmailService;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -19,18 +21,23 @@ namespace Sales.Controllers
 	{
 		private readonly ILogger<UserController> _logger;
 
-		private readonly UserManager<AppUser> _user;
+		private readonly UserManager<IdentityUser> _user;
 
-		private readonly RoleManager<AppRole> _roleManager;
+		private readonly RoleManager<IdentityRole> _roleManager;
 
 		private readonly IConfiguration _configuration;
 
-		public UserController(ILogger<UserController> logger, UserManager<AppUser> user, RoleManager<AppRole> roleManager, IConfiguration configuration)
+
+		private readonly IEmailService _emailService;
+
+
+		public UserController(ILogger<UserController> logger, UserManager<IdentityUser> user, IEmailService emailService,RoleManager<IdentityRole> roleManager, IConfiguration configuration)
 		{
 			_user = user;
 			_logger = logger;
 			_roleManager = roleManager;
 			_configuration = configuration;
+			_emailService = emailService;
 		}
 
 
@@ -59,20 +66,22 @@ namespace Sales.Controllers
 				 new ResponseWithMessageDto { Status = "Error", Message = "Email đã tồn tại." });
 				}
 
-				AppUser appUser = new AppUser()
+				IdentityUser appUser = new IdentityUser()
 				{
 					UserName = register.Username,
 					Email = register.Email,
-					FullName = register.FullName,
 					PhoneNumber = register.PhoneNumber,
 					SecurityStamp = Guid.NewGuid().ToString()
 				};
 
-				var success = await _user.CreateAsync(appUser,  register.Password);
+				var success = await _user.CreateAsync(appUser, register.Password);
 				if(success.Succeeded)
 				{
-
-
+					// tạo role
+					if(!string.IsNullOrEmpty(register.RoleName))
+					{
+						await _user.AddToRoleAsync(appUser, register.RoleName);
+					}
 					return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<dynamic>
 					{
 						Status = StatusConstant.SUCCESS,
@@ -131,7 +140,8 @@ namespace Sales.Controllers
 				} else
 				{
 					var isCheck = await _user.CheckPasswordAsync(user, login.Password);
-					if(!isCheck)
+
+					if (!isCheck)
 					{
 						return StatusCode(StatusCodes.Status200OK, new ResponseWithMessageDto
 						{
@@ -143,18 +153,14 @@ namespace Sales.Controllers
 					{
 
 						var role = await _user.GetRolesAsync(user);
-
-
 						var authClaim = new List<Claim> {
 							new Claim(ClaimTypes.Name, user.UserName),
 							new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
 						};
 
-
-
 						foreach (var userRole in role)
 						{
-							var roleItem = await _roleManager.FindByIdAsync(userRole);
+							var roleItem = await _roleManager.FindByNameAsync(userRole);
 							if(role != null)
 							{
 								authClaim.Add(new Claim(ClaimTypes.Role, userRole));
@@ -196,7 +202,6 @@ namespace Sales.Controllers
 								UserId = user.Id,
 								UserName = user.UserName,
 								Email = user.Email,
-								FullName = user.FullName,
 								PhoneNumber = user.PhoneNumber,
 								accessTken = new JwtSecurityTokenHandler().WriteToken(token),
 								expired = token.ValidTo
@@ -220,8 +225,68 @@ namespace Sales.Controllers
 
 
 		}
+		[HttpPost("sendmail-to-resetpass")]
+		public async Task<IActionResult> SendMailToResetPass([FromBody] string email)
+		{
+			try
+			{
 
+				var res = await _emailService.SendMailToReset(email);
+				return StatusCode(StatusCodes.Status200OK, new ResponseWithMessageDto
+				{
+					Status = StatusConstant.SUCCESS,
+					Message = "Gửi mail thành công"
+				});
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
+				{
+					Status = StatusConstant.SUCCESS,
+					Message = ex.Message
+				});
+			}
+		}
+		[AllowAnonymous]
+		[HttpPost("changePass")]
+		public async Task<IActionResult> changePass([FromBody] ResetPassword reset)
+		{
 
-
+			try
+			{
+				var isChange = await _emailService.ChangePassWord(reset);
+				if (isChange.Succeeded)
+				{
+					return StatusCode(StatusCodes.Status200OK, new ResponseWithMessageDto
+					{
+						Status = StatusConstant.SUCCESS,
+						Message = "Thay đổi mật khẩu thành công"
+					});
+				}
+				else
+				{
+					
+					string error = "";
+					foreach (var err in isChange.Errors)
+					{
+						error += err.Description;
+					}
+					return StatusCode(StatusCodes.Status403Forbidden, new ResponseWithMessageDto
+					{
+						Status = StatusConstant.ERROR,
+						Message = error
+					});
+				}
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
+				{
+					Status = StatusConstant.SUCCESS,
+					Message = ex.Message
+				});
+			}
+			
+		}
 	}
 }

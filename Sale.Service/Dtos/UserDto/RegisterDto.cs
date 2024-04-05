@@ -23,5 +23,7 @@ namespace Sale.Service.Dtos.UserDto
 
 		[Required(ErrorMessage = "Số điện thoại không được để trống")]
 		public string PhoneNumber { get; set; }
+
+		public string? RoleName { get; set; }
 	}
 }

@@ -28,6 +28,8 @@ namespace Sale.Domain.Entities
         public int? rate { get; set; }
 		public string? ProductType { get; set; }
         public int?  ProductSold { get; set; }
+		[ForeignKey("ProductId")]
+		public virtual List<FileImage> FileImages { get; set; }
 
     }
 }

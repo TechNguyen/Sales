@@ -45,7 +45,12 @@ namespace Sales.Controllers
             {
                 var obj = new Product();
                 obj = _mapper.Map<Product>(entity);
-                await _productService.Create(obj);
+				//xử lý upload
+				foreach (var img in entity.ListFileImg)
+				{
+					FileExtension.UploadFile(img);
+				}
+				await _productService.Create(obj);
                 return StatusCode(StatusCodes.Status201Created, new ResponseWithDataDto<Product>
                 {
                     Data = obj,
@@ -180,14 +185,11 @@ namespace Sales.Controllers
 
         }
 
-
-
 		[HttpDelete("delete-arrange")]
 		[Authorize]
 
 		public async Task<IActionResult> DeleteArange([FromBody] List<Guid> ListId)
 		{
-
 			try
 			{
 				foreach (var item in ListId)
@@ -203,7 +205,6 @@ namespace Sales.Controllers
 					Status = StatusConstant.SUCCESS,
 					Message = "Xóa sản phẩm thành công"
 				});
-
 			}
 			catch (Exception ex)
 			{
@@ -218,13 +219,13 @@ namespace Sales.Controllers
 
 
 		[HttpGet("find-by-id")]
-		public async Task<IActionResult> GetById([FromBody] Guid id)
+		//[Authorize]
+		public async Task<IActionResult> GetById([FromQuery] Guid id)
 		{
-
 			try
 			{
-				var data = _productService.GetById(id);
-				return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<Product>
+				var data = _productService.FindDetailProduct(id);
+				return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<ProductDetailDto>
 				{
 					Status = StatusConstant.SUCCESS,
 					Data = data,
@@ -239,13 +240,6 @@ namespace Sales.Controllers
 					Message = ex.Message
 				});
 			}
-
-
 		}
-		
-
-
-
-
 	}
 }
