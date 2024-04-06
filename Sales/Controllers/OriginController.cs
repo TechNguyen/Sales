@@ -27,7 +27,7 @@ namespace Sales.Controllers
 
 
 		[HttpPost("create")]
-		[Authorize]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> Create([FromForm] CreateVM entity)
 		{
 			try
@@ -53,9 +53,9 @@ namespace Sales.Controllers
 		}
 
 
-		[HttpGet("getall")]
-
-		public async Task<IActionResult> GetDataByPage([FromBody]OriginSearchDto searchEntity)
+		[HttpPost("getall")]
+		[AllowAnonymous]
+		public async Task<IActionResult> GetDataByPage([FromForm] OriginSearchDto searchEntity)
 		{
 
 			try
@@ -87,8 +87,7 @@ namespace Sales.Controllers
 		/// <param name="id"></param>
 		/// <returns></returns>
 		[HttpPut("Edit")]
-		[Authorize]
-
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> Edit([FromForm] EditVM entity)
 		{
 
@@ -129,7 +128,8 @@ namespace Sales.Controllers
 
 
 		[HttpDelete("delete")]
-		[Authorize]
+		[Authorize(Roles = "Admin")]
+
 		public async Task<IActionResult> Delete([FromQuery] Guid Id)
 		{
 
@@ -169,7 +169,7 @@ namespace Sales.Controllers
 
 
 		[HttpDelete("delete-arrange")]
-		[Authorize]
+		[Authorize(Roles = "Admin")]
 
 		public async Task<IActionResult> DeleteArange([FromBody] List<Guid> ListId)
 		{

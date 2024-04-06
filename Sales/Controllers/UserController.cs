@@ -155,7 +155,7 @@ namespace Sales.Controllers
 						var role = await _user.GetRolesAsync(user);
 						var authClaim = new List<Claim> {
 							new Claim(ClaimTypes.Name, user.UserName),
-							new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+							new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
 						};
 
 						foreach (var userRole in role)
@@ -187,11 +187,11 @@ namespace Sales.Controllers
 						var seTime = TimeZoneInfo.ConvertTimeFromUtc(dateNow, getSeTime);
 
 						var token = new JwtSecurityToken(
-							issuer: _configuration["JWT:ValidIssuer"],
-							audience: _configuration[""],
+							issuer: _configuration["JWT:Issuer"],
+							audience: _configuration["JWT:Audience"],
 							expires: seTime.AddHours(3),
 							claims: authClaim,
-							signingCredentials: new SigningCredentials(authSignInkey, SecurityAlgorithms.HmacSha256 )
+							signingCredentials: new SigningCredentials(authSignInkey, SecurityAlgorithms.HmacSha256)
 							);
 
 						return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<dynamic>
@@ -218,7 +218,7 @@ namespace Sales.Controllers
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
 				{
-					Status = StatusConstant.SUCCESS,
+					Status = StatusConstant.ERROR,
 					Message = ex.Message
 				});
 			}
@@ -242,7 +242,7 @@ namespace Sales.Controllers
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
 				{
-					Status = StatusConstant.SUCCESS,
+					Status = StatusConstant.ERROR,
 					Message = ex.Message
 				});
 			}
@@ -282,7 +282,7 @@ namespace Sales.Controllers
 			{
 				return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
 				{
-					Status = StatusConstant.SUCCESS,
+					Status = StatusConstant.ERROR,
 					Message = ex.Message
 				});
 			}

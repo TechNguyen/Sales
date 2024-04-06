@@ -6,7 +6,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Sale.Domain;
 using Sale.Domain.Entities;
-//using Sale.Repository.BranchRepository;
 using Sale.Repository.Core;
 using Sale.Repository.ProductRepository;
 using Sale.Service.Core;
@@ -15,7 +14,8 @@ using Sale.Service.EmailService;
 using Sale.Service.ProductService;
 using Sales;
 using System.Reflection;
-
+using System.Text;
+using Swashbuckle.AspNetCore.Filters;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -25,35 +25,19 @@ builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
-builder.Services.AddSwaggerGen(option =>
+builder.Services.AddSwaggerGen(options =>
 {
-	option.CustomSchemaIds(type => type.ToString());
-	option.SwaggerDoc("v1", new OpenApiInfo { Title = "API", Version = "v1" });
-	option.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+	options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
 	{
 		In = ParameterLocation.Header,
-		Description = "Please enter a valid token",
 		Name = "Authorization",
-		Type = SecuritySchemeType.Http,
-		BearerFormat = "JWT",
-		Scheme = "Bearer"
+		Description = "Bearer Authentication with JWT Token",
+		Type = SecuritySchemeType.ApiKey,
 	});
-	option.AddSecurityRequirement(new OpenApiSecurityRequirement
-	{
-		{
-			new OpenApiSecurityScheme
-			{
-				Reference = new OpenApiReference
-				{
-					Type=ReferenceType.SecurityScheme,
-					Id="Bearer"
-				}
-			},
-			new string[]{}
-		}
-	});
+	options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
+
+
 
 builder.Services.AddDbContext<SaleContext>(options =>
 {
@@ -81,28 +65,34 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
 
 
 
-builder.Services.AddAuthentication(option =>
-{
-	option.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme;
-}).AddJwtBearer(options =>
-{
-	options.TokenValidationParameters = new TokenValidationParameters
-	{
-		ValidateIssuer = true,
-		ValidIssuer = builder.Configuration["JWT:ValidIssuer"],
-		ValidateAudience = true,
-		ValidAudience = builder.Configuration["JWT:ValidAudience"],
-		ValidateIssuerSigningKey = true,
-		IssuerSigningKey = new SymmetricSecurityKey(System.Text.Encoding.UTF8.GetBytes(builder.Configuration["JWT:Secret"])),
 
+
+builder.Services.AddAuthentication(options =>
+{
+	options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+	options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(jwt =>
+{
+	jwt.SaveToken = true;
+	jwt.RequireHttpsMetadata = false;
+	jwt.TokenValidationParameters = new TokenValidationParameters
+	{
+		ValidateAudience = true,
+		ValidateIssuer = true,
+		ValidateLifetime = true,
+		ValidateIssuerSigningKey = true,
+		ValidIssuer = builder.Configuration["Jwt:Issuer"],
+		ValidAudience = builder.Configuration["Jwt:Audience"],
+		RequireSignedTokens = true,
+		IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Secret"]))
 	};
 });
 
-
-builder.Services.AddAuthorization(options =>
-{
-	options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
-});
+//builder.Services.AddAuthorization(options =>
+//{
+//	options.AddPolicy("RequireAdminRole", policy => policy.RequireRole("Admin"));
+//});
 
 //// repo setting
 builder.Services.AddScoped(typeof(IRepository<>), typeof(Repository<>));

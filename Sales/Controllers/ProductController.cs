@@ -71,7 +71,7 @@ namespace Sales.Controllers
 
 
         [HttpGet("getall")]
-
+		[AllowAnonymous]
 		public async Task<IActionResult> GetDataByPage([FromBody] ProductSearchDto searchEntity)
         {
 
@@ -219,7 +219,7 @@ namespace Sales.Controllers
 
 
 		[HttpGet("find-by-id")]
-		//[Authorize]
+		[AllowAnonymous]
 		public async Task<IActionResult> GetById([FromQuery] Guid id)
 		{
 			try

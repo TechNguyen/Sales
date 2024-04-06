@@ -17,7 +17,7 @@ namespace Sale.Service.Common
             {
 				var fileNamePath = FileName.Substring(0, dotIndex);
 				var extension = FileName.Substring(dotIndex+1);
-				var fullnameconvert = $"{fileNamePath}-{DateTime.Now.ToString("dd-MM-yyyy")}{extension}"; 
+				var fullnameconvert = $"{fileNamePath}-{DateTime.Now.ToString("dd-MM-yyyy-HH-mm-ss")}.{extension}"; 
 				IDictionary<string,string> newRs = new Dictionary<string, string>();
 				newRs.Add(new KeyValuePair<string, string>(FileConstant.FILENAME, fileNamePath));
 				newRs.Add(new KeyValuePair<string, string>(FileConstant.FILEXTEMSION, extension));

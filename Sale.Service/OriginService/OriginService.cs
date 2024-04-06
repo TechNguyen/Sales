@@ -1,4 +1,5 @@
-﻿using Sale.Domain.Entities;
+﻿using Microsoft.AspNetCore.Mvc.Filters;
+using Sale.Domain.Entities;
 using Sale.Repository.OriginRepository;
 using Sale.Service.Common;
 using Sale.Service.Core;
@@ -34,9 +35,22 @@ namespace Sale.Service.OriginService
 				{
 					if (searchDto.OriginName !=	null) 
 					{
-						querry = querry.Where(x => x.OriginName == searchDto.OriginName);
+						string normalStr = searchDto.OriginName.RemoveAccentsUnicode().ToLower();
+						querry = querry.Where(delegate (OriginDto x)
+						{
+							return x.OriginName.ToLower().RemoveAccentsUnicode().Contains(normalStr);
+						}).AsQueryable();
 					}
 				}
+				if(searchDto.PageIndex == null || searchDto.PageIndex <= 0)
+				{
+					searchDto.PageIndex = 1;
+				}
+				if(searchDto.PageSize == null || searchDto.PageSize <= 0)
+				{
+					searchDto.PageSize = 10;
+				}
+
 				var data = PageList<OriginDto>.Cretae(querry, searchDto);
 				return data;
 			}

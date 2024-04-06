@@ -30,12 +30,6 @@ namespace Sale.Service.BranchService
 			{
 				var query =	from q in _branchRepository.GetQueryable()
 
-								//join btbl in _branchRepository.GetQueryable() on q.BranchId equals btbl.Id into btbl
-								//from bm in btbl.DefaultIfEmpty()
-
-								//join otbl in _originRepository.GetQueryable() on q.OriginId equals otbl.Id into otbl
-								//from  om  in otbl.DefaultIfEmpty()
-
 								select new BranchDto
 								{
 									BranchName = q.BranchName
@@ -45,9 +39,22 @@ namespace Sale.Service.BranchService
 				{
 					if (!string.IsNullOrEmpty(searchDto.BranchName))
 					{
-						query = query.Where(x => x.BranchName.RemoveAccentsUnicode().ToLower().Contains(searchDto.BranchName.ToLower()));
+						query = query.Where(delegate (BranchDto b)
+						{
+							return b.BranchName.RemoveAccentsUnicode().ToLower().Contains(searchDto.BranchName.ToLower());
+						}).AsQueryable();
 					}
-
+					if(searchDto.PageIndex == null || searchDto.PageIndex <= 0)
+					{
+						searchDto.PageIndex = 1;
+					}
+					if (searchDto.PageSize == null || searchDto.PageSize <= 0)
+					{
+						searchDto.PageSize = 10;
+					}
+				} else
+				{
+					query = query.OrderByDescending(a => a.BranchName);
 				}
 				var items = PageList<BranchDto>.Cretae(query, searchDto);
 				return items;

@@ -8,7 +8,9 @@ using Sale.Service.Common;
 using Sale.Service.Constant;
 using Sale.Service.Dtos;
 using Sale.Service.Dtos.BranchDto;
+using Sale.Service.FileImageService;
 using Sales.Model.Branch;
+using System.Security.Claims;
 
 namespace Sales.Controllers
 {
@@ -18,24 +20,43 @@ namespace Sales.Controllers
 	{
 		private readonly IBranchService _branchService;
 		private readonly IMapper _mapper;
+		private readonly IFileImageService _fileImageService;
         public BranchController(
 			IBranchService branchService,
-			IMapper mapper
+			IMapper mapper,
+			IFileImageService fileImageService
+
 			) {
 			_branchService = branchService;
 			_mapper = mapper;
+			_fileImageService = fileImageService;
 		}
 
 
 
 		[HttpPost("create")]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> Create([FromForm] CreateVM entity)
 		{
 			try
 			{
 				var obj = new Branch();
 				obj = _mapper.Map<Branch>(entity);
+				obj.CreatedDate = DateTime.Now;
+				//xử lý upload
+
+				var claimsIdentity = HttpContext.User.Identity as ClaimsIdentity;
+				if (claimsIdentity != null)
+				{
+					var name = claimsIdentity.FindFirst(ClaimTypes.Name);
+					obj.CreatedBy = name.Value;
+				}
+
+				
 				await _branchService.Create(obj);
+
+
+
 				return StatusCode(StatusCodes.Status201Created, new ResponseWithDataDto<Branch>
 				{
 					Data = obj,
@@ -52,10 +73,8 @@ namespace Sales.Controllers
 				});
 			}
 		}
-
-
-		[HttpGet("getall")]
-
+		[HttpPost("getall")]
+		[AllowAnonymous]
 		public async Task<IActionResult> GetDataByPage([FromForm] BranchSearchDto searchEntity)
 		{
 

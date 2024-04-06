@@ -9,7 +9,7 @@ namespace Sale.Service.Common
 	public class SearchBase
 	{
         public int PageIndex { get; set; }
-        public int PageSize { get; set; }
+		public int PageSize { get; set; }
 		public string? fieldName { get; set; }
 		public string? typeOrder { get; set; }
 	}
