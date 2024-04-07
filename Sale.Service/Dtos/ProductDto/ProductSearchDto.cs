@@ -11,9 +11,11 @@ namespace Sale.Service.Dtos.ProductDto
 	{
 		public string? ProductName { get; set; }
 
+		public List<Dictionary<string,decimal>>? listPrice { get; set; }
+		
         public Guid? BranchId { get; set; }
 
-        public Guid? Origin  { get; set; }
+        public Guid? OriginId  { get; set; }
 
     }
 }

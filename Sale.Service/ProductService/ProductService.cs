@@ -7,6 +7,7 @@ using Sale.Repository.FileImageRepository;
 using Sale.Repository.OriginRepository;
 using Sale.Repository.ProductRepository;
 using Sale.Service.Common;
+using Sale.Service.Constant;
 using Sale.Service.Core;
 using Sale.Service.Dtos.FileImageDto;
 using Sale.Service.Dtos.ProductDto;
@@ -49,8 +50,6 @@ namespace Sale.Service.ProductService
 							 from branch in branchTB.DefaultIfEmpty()
 							 join oritbl in _originRepository.GetQueryable() on q.OriginId equals oritbl.Id into originTB
 							 from origin in originTB.DefaultIfEmpty()
-							 join filetbl in _fileImageRepository.GetQueryable() on q.Id equals filetbl.ProductId into fileTB
-							 from file in fileTB.DefaultIfEmpty()
 							 where q.Id == id
 							 select new ProductDetailDto
 							 {
@@ -62,20 +61,25 @@ namespace Sale.Service.ProductService
 								 ProductType = q.ProductType,
 								 comment = q.comment,
 								 views = q.views,
-								 ProductNumber = q.ProductNumber,
 								 ProductQuanlity = q.ProductQuanlity,
 								 ProductSold = q.ProductSold,
 								 OriginName = origin != null ? origin.OriginName : null, // Ensure origin is not null before accessing its properties
-								 listFileAndImage = fileTB.Select(fi => new FileImageDto
-								 {
-									 extension = fi.extension,
-									 FilePath = fi.FilePath,
-									 mime = fi.mime,
-									 CreateAt = fi.CreatedDate
-								 }).ToList()
 							 }).FirstOrDefault();
 
-				return query;
+
+				var queryImg = (from fileImg in _fileImageRepository.GetQueryable()
+								select new FileImageDto
+								{
+									extension = fileImg.extension,
+									fileSize = fileImg.fileSize,
+									FileName = fileImg.FileName,
+									FilePath = fileImg.FilePath,
+									mime = fileImg.mime,
+									CreateAt = fileImg.CreatedDate,
+								}).ToList();
+				query.listFileAndImage = new List<FileImageDto>();
+				query.listFileAndImage.AddRange(queryImg);
+                return query;
 			}
 			catch (Exception)
 			{
@@ -88,10 +92,11 @@ namespace Sale.Service.ProductService
 			try
 			{
 				var query = from q in _productRepository.GetQueryable()
-
-
 							join  btbl in _branchRepository.GetQueryable() on q.BranchId equals btbl.Id into bt
 							from b in bt.DefaultIfEmpty()
+							join otbl  in _originRepository.GetQueryable() on q.OriginId equals otbl.Id into ot
+							from o in  ot.DefaultIfEmpty()
+							where q.IsDelete == false || q.IsDelete == null
 							select new ProductDto
 							{
 								ProdcutPrice = q.ProdcutPrice,
@@ -102,26 +107,47 @@ namespace Sale.Service.ProductService
 								ProductType = q.ProductType,
 								comment = q.comment,
 								views = q.views,
-								ProductNumber = q.ProductNumber,
+								OriginName = o.OriginName,
 								ProductQuanlity = q.ProductQuanlity,
-								ProductSold = q.ProductSold
+								ProductSold = q.ProductSold,
+								Id = q.Id,
 							};
 
 				if(searchDto != null)
 				{
 					if(!string.IsNullOrEmpty(searchDto.ProductName))
 					{
-						query = query.Where(x => x.ProductName.RemoveAccentsUnicode().ToLower().Contains(searchDto.ProductName.ToLower()));
+						query = query.Where(delegate (ProductDto b)
+						{
+							return b.ProductName.RemoveAccentsUnicode().ToLower().Contains(searchDto.ProductName.RemoveAccentsUnicode().ToLower());
+						}).AsQueryable();
 					}
 					if(!string.IsNullOrEmpty(searchDto.BranchId.ToString()))
 					{
 						query = query.Where(x => x.BranchId == searchDto.BranchId);	
 					}
-					if(!string.IsNullOrEmpty(searchDto.Origin.ToString()))
+					if(!string.IsNullOrEmpty(searchDto.OriginId.ToString()))
 					{
-						query = query.Where(x => x.OriginId == searchDto.Origin);	
+						query = query.Where(x => x.OriginId == searchDto.OriginId);	
 					}
-					
+					if(searchDto.PageIndex == null || searchDto.PageIndex <= 0)
+					{
+						searchDto.PageIndex = 1;
+					}
+					if (searchDto.PageSize == null || searchDto.PageSize <= 0)
+					{
+						searchDto.PageSize = 1;
+					}
+					if(searchDto.listPrice != null)
+					{
+                        foreach (var item in searchDto.listPrice)
+						{
+							var minPrice = item[PriceConstant.MIN];
+							var maxPrice = item[PriceConstant.MAX];
+							query = query.Where(x => x.ProdcutPrice >= minPrice && x.ProdcutPrice <= maxPrice);
+						}
+					}
+
 				}
 				var items = PageList<ProductDto>.Cretae(query,searchDto);
 				return items;

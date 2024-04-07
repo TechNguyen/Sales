@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Sale.Service.Constant;
 using Sale.Service.Dtos;
@@ -13,7 +14,6 @@ namespace Sales.Controllers
 	public class FileImageController : ControllerBase
 	{
 
-
         private readonly IFileImageService _fileImageService;
         public  FileImageController(IFileImageService fileImageService)
         {
@@ -26,7 +26,8 @@ namespace Sales.Controllers
         /// <param name="productId"></param>
         /// <returns></returns>
 		[HttpGet("Get-By-Id")]
-        public async Task<IActionResult> GetFileById([FromBody] Guid productId)
+        [AllowAnonymous]
+        public async Task<IActionResult> GetFileById([FromQuery] Guid productId)
         {
             try 
             {
@@ -58,6 +59,37 @@ namespace Sales.Controllers
                 });
             }
 
+
+        }
+
+        [HttpDelete("delete-by-ProductId")]
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> Delete([FromBody] List<Guid> listId)
+        {
+            try
+            {
+                foreach (var item in listId)
+                {
+                    var data = _fileImageService.FindBy(x => x.ProductId == item && (x.IsDelete == false || x.IsDelete == null)).ToList();
+                    if(data != null)
+                    {
+                       await _fileImageService.Delete(data);
+                    } 
+                }
+                return StatusCode(StatusCodes.Status200OK, new ResponseWithMessageDto
+				{
+					Status = StatusConstant.SUCCESS,
+					Message = "Xóa file thành công"
+				});
+			}
+            catch (Exception ex)
+            {
+				return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
+				{
+					Status = StatusConstant.ERROR,
+					Message = ex.Message
+				});
+			}
 
         }
 

@@ -75,13 +75,13 @@ namespace Sales.Controllers
 		}
 		[HttpPost("getall")]
 		[AllowAnonymous]
-		public async Task<IActionResult> GetDataByPage([FromForm] BranchSearchDto searchEntity)
+		public async Task<IActionResult> GetDataByPage([FromBody] BranchSearchDto searchEntity)
 		{
 
 			try
 			{
 				var obj = await _branchService.GetDataByPage(searchEntity);
-				return StatusCode(StatusCodes.Status201Created, new ResponseWithDataDto<PageList<BranchDto>?>
+				return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<PageList<BranchDto>?>
 				{
 					Data = obj,
 					Status = StatusConstant.SUCCESS,
@@ -107,14 +107,13 @@ namespace Sales.Controllers
 		/// <param name="id"></param>
 		/// <returns></returns>
 		[HttpPut("Edit")]
-		[Authorize]
-
-		public async Task<IActionResult> Edit([FromForm] EditVM entity)
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> Edit([FromForm] EditVM entity, [FromQuery] Guid id)
 		{
 
 			try
 			{
-				var data = _branchService.GetById(entity.id);
+				var data = _branchService.FindById(id);
 				if (data == null)
 				{
 					return StatusCode(StatusCodes.Status400BadRequest, new ResponseWithMessageDto
@@ -125,11 +124,18 @@ namespace Sales.Controllers
 				}
 				else
 				{
-					var obj = _mapper.Map<Branch>(entity);
-					await _branchService.Update(obj);
+					var claims = HttpContext.User.Identity as ClaimsIdentity;
+					if (claims != null)
+					{
+						var name = claims.FindFirst(ClaimTypes.Name);
+						data.UpdatedBy = name.Value;
+					}
+					data = _mapper.Map<EditVM,Branch>(entity,data);
+					data.UpdatedDate = DateTime.Now;
+					await _branchService.Update(data);
 					return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<Branch>
 					{
-						Data = obj,
+						Data = data,
 						Status = StatusConstant.SUCCESS,
 						Message = "Cập nhật sản phẩm thành công"
 					});
@@ -146,10 +152,8 @@ namespace Sales.Controllers
 			}
 		}
 
-
-
 		[HttpDelete("delete")]
-		[Authorize]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> Delete([FromQuery] Guid Id)
 		{
 
@@ -160,8 +164,8 @@ namespace Sales.Controllers
 				{
 					return StatusCode(StatusCodes.Status400BadRequest, new ResponseWithMessageDto
 					{
-						Status = StatusConstant.ERROR,
-						Message = "Không tồn tại thương hi"
+						Status = StatusConstant.SUCCESS,
+						Message = "Không tồn tại thương hiệu"
 					});
 				}
 				else
@@ -189,11 +193,9 @@ namespace Sales.Controllers
 
 
 		[HttpDelete("delete-arrange")]
-		[Authorize]
-
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> DeleteArange([FromBody] List<Guid> ListId)
 		{
-
 			try
 			{
 				foreach (var item in ListId)
@@ -221,6 +223,89 @@ namespace Sales.Controllers
 			}
 
 
+		}
+
+		[HttpGet("detail")]
+		[AllowAnonymous]
+		public async Task<IActionResult> Detail([FromQuery] Guid id)
+		{
+
+			try
+			{
+				var branch = _branchService.FindById(id);
+				if (branch != null)
+				{
+					return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<Branch>
+					{
+						Data = branch,
+						Status = StatusConstant.SUCCESS,
+						Message = "Lấy thông tin thương hiệu thành công"
+					});
+				}
+				else
+				{
+					return StatusCode(StatusCodes.Status200OK, new ResponseWithMessageDto
+					{
+						Status = StatusConstant.SUCCESS,
+						Message = "Không tồn tại thương hiệu"
+					});
+				}
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
+				{
+					Status = StatusConstant.ERROR,
+					Message = ex.Message
+				});
+			}
+
+
+		}
+		[HttpPut("delete-soft")]
+		[Authorize(Roles = "Admin")]
+
+		public async Task<IActionResult> DeleteSoft([FromQuery] Guid id)
+		{
+
+			try
+			{
+				var branch = _branchService.GetById(id);
+				if (branch == null)
+				{
+					return StatusCode(StatusCodes.Status200OK, new ResponseWithMessageDto
+					{
+						Status = StatusConstant.SUCCESS,
+						Message = "Không tồn tại thương hiệu"
+					});
+				}
+				else
+				{
+					var claims = HttpContext.User.Identity as ClaimsIdentity;
+					if (claims != null)
+					{
+						var name = claims.FindFirst(ClaimTypes.Name);
+						branch.DeleteBy  = name.Value;
+					}
+					branch.IsDelete = true;
+					await _branchService.Update(branch);
+					return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<Branch>
+					{
+						Data = branch,
+						Status = StatusConstant.SUCCESS,
+						Message = "Xóa thương hiệu thành công"
+					});
+				}
+				
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
+				{
+					Status = StatusConstant.ERROR,
+					Message = ex.Message
+				});
+			}
 		}
 
 

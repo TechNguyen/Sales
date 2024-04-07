@@ -8,7 +8,9 @@ namespace Sale.Service.Dtos.BranchDto
 {
 	public class BranchDto
 	{
-		public string? BranchName { get; set; }
+		public Guid id { get; set; }
+        public DateTime? CreateDate { get; set; }
+        public string? BranchName { get; set; }
 
 	}
 }

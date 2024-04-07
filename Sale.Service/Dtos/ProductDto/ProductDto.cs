@@ -10,6 +10,9 @@ namespace Sale.Service.Dtos.ProductDto
 {
 	public class ProductDto
 	{
+
+
+		public Guid Id { get; set; }	
 		public string? BranchName { get; set; }
 		public string? CategoryId { get; set; }
 		public string? OriginName { get; set; }

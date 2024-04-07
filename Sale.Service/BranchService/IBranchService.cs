@@ -12,8 +12,7 @@ namespace Sale.Service.BranchService
 {
 	public interface IBranchService : IService<Branch>
 	{
-		
 		Task<PageList<BranchDto>> GetDataByPage(BranchSearchDto searchDto);
-
+		Branch? FindById(Guid id);
 	}
 }

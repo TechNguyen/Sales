@@ -24,16 +24,44 @@ namespace Sale.Service.BranchService
 			_branchRepository = branchRepository;
 		}
 
+		public Branch? FindById(Guid id)
+		{
+			try
+			{
+				var branch = from q in _branchRepository.GetQueryable()
+							 where q.Id == id && (q.IsDelete == false || q.IsDelete == null)
+							 select new Branch
+							 {
+								 BranchName = q.BranchName,
+								 CreatedBy = q.CreatedBy,
+								 CreatedDate = q.CreatedDate,
+								 IsDelete = q.IsDelete,
+								 CreatedID = q.CreatedID,
+								 UpdatedDate = q.UpdatedDate,
+								 Id = q.Id,
+								 DeleteTime = q.DeleteTime,
+								 UpdatedBy = q.UpdatedBy,
+							 };
+				return branch.FirstOrDefault();
+			}
+			catch (Exception e)
+			{
+				return null;
+			}
+		}
+
 		public async Task<PageList<BranchDto>> GetDataByPage(BranchSearchDto searchDto)
 		{
 			try
 			{
 				var query =	from q in _branchRepository.GetQueryable()
-
-								select new BranchDto
-								{
-									BranchName = q.BranchName
-								};
+							where q.IsDelete == null || q.IsDelete == false
+							select new BranchDto
+							{
+								BranchName = q.BranchName,
+								id = q.Id,
+								CreateDate =  q.CreatedDate
+							};
 
 				if (searchDto != null)
 				{
@@ -41,7 +69,7 @@ namespace Sale.Service.BranchService
 					{
 						query = query.Where(delegate (BranchDto b)
 						{
-							return b.BranchName.RemoveAccentsUnicode().ToLower().Contains(searchDto.BranchName.ToLower());
+							return b.BranchName.RemoveAccentsUnicode().ToLower().Contains(searchDto.BranchName.RemoveAccentsUnicode().ToLower());
 						}).AsQueryable();
 					}
 					if(searchDto.PageIndex == null || searchDto.PageIndex <= 0)

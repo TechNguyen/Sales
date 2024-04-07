@@ -7,10 +7,13 @@ using Sale.Domain.Entities;
 using Sale.Service.Common;
 using Sale.Service.Constant;
 using Sale.Service.Dtos;
+using Sale.Service.Dtos.FileImageDto;
 using Sale.Service.Dtos.ProductDto;
+using Sale.Service.FileImageService;
 using Sale.Service.ProductService;
 using Sales.Model.Product;
 using System.Net.WebSockets;
+using System.Security.Claims;
 
 namespace Sales.Controllers
 {
@@ -21,14 +24,17 @@ namespace Sales.Controllers
         private readonly ILogger<ProductController> _logger;
         private readonly IProductService _productService;
         private readonly IMapper _mapper;
+		private readonly IFileImageService _fileImageService;
         public ProductController(
 			ILogger<ProductController> logger,
             IProductService productService,
-            IMapper mapper
+            IMapper mapper,
+			IFileImageService fileImageService
 			) { 
             _productService = productService;
             _logger = logger;
             _mapper = mapper;
+			_fileImageService = fileImageService;
         }
 
         /// <summary>
@@ -38,20 +44,37 @@ namespace Sales.Controllers
         /// <returns></returns>
 
 		[HttpPost("create")]
-		[Authorize]
+		[Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromForm] CreateVM entity)
         {
             try
             {
                 var obj = new Product();
                 obj = _mapper.Map<Product>(entity);
+				await _productService.Create(obj);
 				//xử lý upload
 				foreach (var img in entity.ListFileImg)
 				{
-					FileExtension.UploadFile(img);
+					var rs = FileExtension.UploadFile(img);
+					if (rs != null)
+					{
+						var filenew = new FileImageDto()
+						{
+							ProductId = obj.Id,
+							CreateAt = DateTime.Now,
+							extension = rs[FileConstant.FILEDETAIL][FileConstant.FILEXTEMSION],
+							fileSize = rs[FileConstant.FILESIZE],
+							FileName = rs[FileConstant.FILEDETAIL][FileConstant.FILENAMECONVERT],
+							FilePath = rs[FileConstant.FILEPATH],
+							mime = rs[FileConstant.MIME],
+						};
+						var obbjFile = new FileImage();
+						obbjFile = _mapper.Map<FileImage>(filenew);
+						obbjFile.CreatedDate = DateTime.Now;
+						await _fileImageService.Create(obbjFile);
+					}
 				}
-				await _productService.Create(obj);
-                return StatusCode(StatusCodes.Status201Created, new ResponseWithDataDto<Product>
+				return StatusCode(StatusCodes.Status201Created, new ResponseWithDataDto<dynamic>
                 {
                     Data = obj,
                     Status = StatusConstant.SUCCESS,
@@ -70,7 +93,7 @@ namespace Sales.Controllers
 
 
 
-        [HttpGet("getall")]
+        [HttpPost("getall")]
 		[AllowAnonymous]
 		public async Task<IActionResult> GetDataByPage([FromBody] ProductSearchDto searchEntity)
         {
@@ -78,7 +101,7 @@ namespace Sales.Controllers
             try
             {
                 var obj = await _productService.GetDataByPage(searchEntity); 
-				return StatusCode(StatusCodes.Status201Created, new ResponseWithDataDto<PageList<ProductDto>?>
+				return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<PageList<ProductDto>?>
 				{
 					Data = obj,
 					Status = StatusConstant.SUCCESS,
@@ -104,13 +127,13 @@ namespace Sales.Controllers
 		/// <param name="id"></param>
 		/// <returns></returns>
 		[HttpPut("Edit")]
-		[Authorize]
+		[Authorize(Roles = "Admin")]
 
-		public async Task<IActionResult> Edit([FromBody] EditVM entity)
+		public async Task<IActionResult> Edit([FromBody] EditVM entity, [FromQuery] Guid id)
 		{
 			try
 			{
-				var data = _productService.GetById(entity.id);
+				var data = _productService.GetById(id);
 				if (data == null)
 				{
 					return StatusCode(StatusCodes.Status400BadRequest, new ResponseWithMessageDto
@@ -121,11 +144,11 @@ namespace Sales.Controllers
 				}
 				else
 				{
-					var obj = _mapper.Map<Product>(entity);
-					await _productService.Update(obj);
+					data = _mapper.Map<EditVM, Product>(entity, data);
+					await _productService.Update(data);
 					return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<Product>
 					{
-						Data = obj,
+						Data = data,
 						Status = StatusConstant.SUCCESS,
 						Message = "Cập nhật sản phẩm thành công"
 					});
@@ -145,14 +168,13 @@ namespace Sales.Controllers
 
 
 		[HttpDelete("delete")]
-		[Authorize]
-
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> Delete([FromQuery] Guid Id)
         {
 
             try
             {
-                var data = _productService.GetById(Id);
+                var data = _productService.FindBy(x => x.Id == Id && (x.IsDelete == false || x.IsDelete == null)).FirstOrDefault();
                 if(data == null)
                 {
 					return StatusCode(StatusCodes.Status400BadRequest, new ResponseWithMessageDto
@@ -163,7 +185,11 @@ namespace Sales.Controllers
 				}
                 else
                 {
+					//Xóa hết ở trong File
+					var listFile = _fileImageService.FindBy(x => x.ProductId == Id).ToList();
+					await _fileImageService.Delete(listFile);
 					await _productService.Delete(data);
+
 					return StatusCode(StatusCodes.Status200OK, new ResponseWithMessageDto
 					{
 						Status = StatusConstant.SUCCESS,
@@ -186,7 +212,8 @@ namespace Sales.Controllers
         }
 
 		[HttpDelete("delete-arrange")]
-		[Authorize]
+		[Authorize(Roles = "Admin")]
+
 
 		public async Task<IActionResult> DeleteArange([FromBody] List<Guid> ListId)
 		{
@@ -197,7 +224,9 @@ namespace Sales.Controllers
 					var data = _productService.GetById(item);
                     if(data != null)
                     {
-					    await _productService.Delete(data);
+						var listFile = _fileImageService.FindBy(x => x.ProductId == item).ToList();
+						await _fileImageService.Delete(listFile);
+						await _productService.Delete(data);
                     }
 				}
 				return StatusCode(StatusCodes.Status200OK, new ResponseWithMessageDto
@@ -241,5 +270,57 @@ namespace Sales.Controllers
 				});
 			}
 		}
+
+
+
+		[HttpPost("delete-soft")]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> DeleteSoft([FromQuery] Guid id)
+		{
+
+			try
+			{
+				var deletePr = _productService.FindBy(x => x.Id == id).FirstOrDefault();
+			
+				if (deletePr == null)
+				{
+					return StatusCode(StatusCodes.Status400BadRequest, new ResponseWithMessageDto
+					{
+						Message = "Không tồn tại",
+						Status = StatusConstant.ERROR
+					});
+				}
+				else
+				{
+					deletePr.IsDelete = true;
+					deletePr.DeleteTime = DateTime.Now;
+					var claims = HttpContext.User.Identity as ClaimsIdentity;
+					if (claims != null)
+					{
+						var name = claims.FindFirst(ClaimTypes.Name);
+						deletePr.DeleteBy = name.Value;
+					}
+					await _productService.Update(deletePr);
+					return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<dynamic>
+					{
+						Data = deletePr,
+						Message = "Xóa mềm thành công",
+						Status = StatusConstant.SUCCESS
+					});
+
+				}
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
+				{
+					Status = StatusConstant.ERROR,
+					Message = ex.Message
+				});
+			}
+
+
+		}
+
 	}
 }

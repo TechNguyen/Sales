@@ -26,7 +26,7 @@ namespace Sale.Service.FileImageService
 			try
 			{
 				var query = from file in _fileImageRepository.GetQueryable()
-							where file.ProductId == productId
+							where file.ProductId == productId && (file.IsDelete == false || file.IsDelete == null)
 							select new FileImageDto
 							{
 								ProductId = productId,
@@ -34,6 +34,28 @@ namespace Sale.Service.FileImageService
 								FilePath = file.FilePath,
 								mime = file.mime,
 								CreateAt = file.CreatedDate
+							};
+				return query.ToList();
+			}
+			catch (Exception ex)
+			{
+
+				return null;
+			}
+		}
+
+		public List<FileImage>? FindByProductIDv2(Guid productId)
+		{
+			try
+			{
+				var query = from file in _fileImageRepository.GetQueryable()
+							where file.ProductId == productId && (file.IsDelete == false || file.IsDelete == null)
+							select new FileImage
+							{
+								ProductId = productId,
+								extension = file.extension,
+								FilePath = file.FilePath,
+								mime = file.mime,
 							};
 				return query.ToList();
 			}

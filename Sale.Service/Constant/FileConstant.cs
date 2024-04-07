@@ -11,5 +11,9 @@ namespace Sale.Service.Constant
 		public static string FILENAME = "FILENAME";
 		public static string FILEXTEMSION = "FILEXTEMSION";
 		public static string FILENAMECONVERT = "FILENAMECONVERT";
+		public static string FILEPATH = "FILEPATH";
+		public static string MIME = "MIME";
+		public static string FILESIZE = "FILESIZE";
+		public static string FILEDETAIL = "FILEDETAIL";
 	}
 }

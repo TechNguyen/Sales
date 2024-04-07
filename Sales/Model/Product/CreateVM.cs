@@ -10,15 +10,13 @@ namespace Sales.Model.Product
 		public string ProductName { get; set; }
 		public decimal? ProdcutPrice { get; set; }
 		public int? ProductQuanlity { get; set; }
-		public int? ProductNumber { get; set; }
 		public string? ProductDescription { get; set; }
-		public string? ProductOrigin { get; set; }
 		public string? ProductMaterial { get; set; }
 		public int? views { get; set; }
 		public int? comment { get; set; }
 		public int? rate { get; set; }
 		public string? ProductType { get; set; }
 		public int? ProductSold { get; set; }
-        public List<IFormFile>? ListFileImg { get; set; }
+		public List<IFormFile>? ListFileImg { get; set; }
     }
 }

@@ -16,5 +16,7 @@ namespace Sale.Domain.Entities
         public string mime { get; set; }
         public string extension { get; set; }
 		public Product product { get; set; }
+		public double fileSize { get; set; }
+		public string FileName { get; set; }
     }
 }

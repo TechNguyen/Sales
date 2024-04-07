@@ -12,7 +12,7 @@ using System.Threading.Tasks;
 
 namespace Sale.Domain
 {
-    public class SaleContext : IdentityDbContext<IdentityUser>
+	public class SaleContext : IdentityDbContext<IdentityUser>
 	{
 
 
@@ -24,7 +24,7 @@ namespace Sale.Domain
 		protected override void OnModelCreating(ModelBuilder builder)
 		{
 			base.OnModelCreating(builder);
-			this.SeedRoles(builder);
+			//this.SeedRoles(builder);
 		}
 
 		private void SeedRoles(ModelBuilder builder)
@@ -39,9 +39,14 @@ namespace Sale.Domain
 		public DbSet<Product> Products { get; set; }
 		public DbSet<Branch> Branchs { get; set; }
 		public DbSet<Origin> Origin { get; set; }
-
 		public DbSet<FileImage> fileImages { get; set; }
+		public DbSet<Orders> Orders { get; set; }
+		public DbSet<Cart> Carts { get; set; }
+		public DbSet<Promotion> Promotions { get ;set;}
+		public DbSet<Rate> Rates { get ;set;}
+		public DbSet<Comments> Comments { get ;set;}
 
+		public DbSet<NotifiCation> NotifiCations { get ;set; }
 
 	}
 }

@@ -14,5 +14,8 @@ namespace Sale.Service.FileImageService
 	{
 		Task<PageList<FileImageDto>> GetDataByPage(FileImageSearchDto searchDto);
 	 	List<FileImageDto>? FindByProductID(Guid productId);
+	 	List<FileImage>? FindByProductIDv2(Guid productId);
+
+		
 	}
 }

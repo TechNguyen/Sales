@@ -87,8 +87,6 @@ namespace Sale.Service.EmailService
 			if (token != null)
 			{
 				UserEmailOption sendEmail = new UserEmailOption();
-
-
 				sendEmail.toEmails = user.Email;
 				var text = GetEmailBody("SendEmail");
 				sendEmail.subject = "This is email to verify email to reset password";

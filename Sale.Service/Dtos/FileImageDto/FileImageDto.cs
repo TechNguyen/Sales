@@ -13,5 +13,7 @@ namespace Sale.Service.Dtos.FileImageDto
 		public string mime { get; set; }
 		public string extension { get; set; }
 		public DateTime? CreateAt { get; set; }
+		public double? fileSize { get; set; }
+		public string? FileName { get; set; }
 	}
 }

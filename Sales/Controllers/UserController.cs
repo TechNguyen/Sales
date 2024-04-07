@@ -41,7 +41,6 @@ namespace Sales.Controllers
 		}
 
 
-
 		/// <summary>
 		/// REGISTER
 		/// </summary>
@@ -113,15 +112,13 @@ namespace Sales.Controllers
 
 
         }
-
-
-
 		/// <summary>
 		/// Login dto
 		/// </summary>
 		/// <param name="login"></param>
 		/// <returns></returns>
 		[HttpPost("login")]
+		[AllowAnonymous]
 		public async Task<IActionResult> Login([FromBody] LoginDto login)
 		{
 
@@ -222,21 +219,31 @@ namespace Sales.Controllers
 					Message = ex.Message
 				});
 			}
-
-
 		}
+		[AllowAnonymous]
 		[HttpPost("sendmail-to-resetpass")]
-		public async Task<IActionResult> SendMailToResetPass([FromBody] string email)
+		public async Task<IActionResult> SendMailToResetPass([FromQuery] string email)
 		{
 			try
 			{
-
 				var res = await _emailService.SendMailToReset(email);
-				return StatusCode(StatusCodes.Status200OK, new ResponseWithMessageDto
+				if (res)
 				{
-					Status = StatusConstant.SUCCESS,
-					Message = "Gửi mail thành công"
-				});
+					return StatusCode(StatusCodes.Status200OK, new ResponseWithMessageDto
+					{
+						Status = StatusConstant.SUCCESS,
+						Message = "Gửi mail thành công"
+					});
+				}
+				else
+				{
+					return StatusCode(StatusCodes.Status400BadRequest, new ResponseWithMessageDto
+					{
+						Status = StatusConstant.ERROR,
+						Message = "Gửi mail thất bại"
+					});
+				}
+				
 			}
 			catch (Exception ex)
 			{

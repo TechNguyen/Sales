@@ -9,7 +9,6 @@ namespace Sale.Service.Dtos
 {
 	public class ResetPassword
 	{
-		[Required(ErrorMessage = "This field is required")]
 		public string userId { get; set; }
 		[Required, DataType(DataType.Password)]
 		public string newPassword { get; set; }
