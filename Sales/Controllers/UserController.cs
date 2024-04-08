@@ -124,7 +124,6 @@ namespace Sales.Controllers
 
 			try
 			{
-
 				var user = await _user.FindByNameAsync(login.UserName);
 				if (user == null)
 				{
@@ -200,6 +199,7 @@ namespace Sales.Controllers
 								UserName = user.UserName,
 								Email = user.Email,
 								PhoneNumber = user.PhoneNumber,
+								RoleName = role,
 								accessTken = new JwtSecurityTokenHandler().WriteToken(token),
 								expired = token.ValidTo
 							},
