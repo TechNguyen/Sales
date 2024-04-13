@@ -96,7 +96,8 @@ namespace Sale.Service.ProductService
 							from b in bt.DefaultIfEmpty()
 							join otbl  in _originRepository.GetQueryable() on q.OriginId equals otbl.Id into ot
 							from o in  ot.DefaultIfEmpty()
-							where q.IsDelete == false || q.IsDelete == null
+
+ 							where q.IsDelete == false || q.IsDelete == null
 							select new ProductDto
 							{
 								ProdcutPrice = q.ProdcutPrice,

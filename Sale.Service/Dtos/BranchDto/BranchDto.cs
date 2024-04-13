@@ -12,5 +12,8 @@ namespace Sale.Service.Dtos.BranchDto
         public DateTime? CreateDate { get; set; }
         public string? BranchName { get; set; }
 
-	}
+
+        public int CountProduct { get; set; }
+
+    }
 }

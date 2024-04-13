@@ -1,6 +1,7 @@
 ﻿using Sale.Domain.Entities;
 using Sale.Repository.BranchRepository;
 using Sale.Repository.Core;
+using Sale.Repository.ProductRepository;
 using Sale.Service.Common;
 using Sale.Service.Core;
 using Sale.Service.Dtos.BranchDto;
@@ -18,9 +19,10 @@ namespace Sale.Service.BranchService
 
 
 		private readonly IBranchRepository _branchRepository;
-        public BranchService(IRepository<Branch> repository, IBranchRepository branchRepository) : base(repository)
+		private readonly IProductRepository _productRepository;
+        public BranchService(IRepository<Branch> repository, IBranchRepository branchRepository, IProductRepository productRepository) : base(repository)
 		{
-
+			_productRepository = productRepository;
 			_branchRepository = branchRepository;
 		}
 
@@ -55,11 +57,14 @@ namespace Sale.Service.BranchService
 			try
 			{
 				var query =	from q in _branchRepository.GetQueryable()
+
+							join protbl in _productRepository.GetQueryable() on q.Id equals protbl.Id into pro
 							where q.IsDelete == null || q.IsDelete == false
 							select new BranchDto
 							{
 								BranchName = q.BranchName,
 								id = q.Id,
+								CountProduct = pro.Count(),
 								CreateDate =  q.CreatedDate
 							};
 
