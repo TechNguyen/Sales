@@ -1,11 +1,12 @@
 ﻿using Sale.Domain.Entities;
+using Sale.Service.Dtos.FileImageDto;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-
+using Sale.Service.Dtos.FileImageDto;
 namespace Sale.Service.Dtos.ProductDto
 {
 	public class ProductDto
@@ -36,5 +37,9 @@ namespace Sale.Service.Dtos.ProductDto
 
         public Guid? OriginId { get; set; }
         public Guid? BranchId { get; set; }
+
+
+
+        public List<FileImageDto.FileImageDto> listFile { get; set; }
     }
 }

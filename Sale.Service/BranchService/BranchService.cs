@@ -58,7 +58,7 @@ namespace Sale.Service.BranchService
 			{
 				var query =	from q in _branchRepository.GetQueryable()
 
-							join protbl in _productRepository.GetQueryable() on q.Id equals protbl.Id into pro
+							join protbl in _productRepository.GetQueryable() on q.Id equals protbl.BranchId into pro
 							where q.IsDelete == null || q.IsDelete == false
 							select new BranchDto
 							{

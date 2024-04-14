@@ -97,7 +97,6 @@ namespace Sales.Controllers
 		[AllowAnonymous]
 		public async Task<IActionResult> GetDataByPage([FromBody] ProductSearchDto searchEntity)
         {
-
             try
             {
                 var obj = await _productService.GetDataByPage(searchEntity); 
@@ -213,8 +212,6 @@ namespace Sales.Controllers
 
 		[HttpDelete("delete-arrange")]
 		[Authorize(Roles = "Admin")]
-
-
 		public async Task<IActionResult> DeleteArange([FromBody] List<Guid> ListId)
 		{
 			try

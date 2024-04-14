@@ -28,8 +28,6 @@ namespace Sale.Service.Common
 				return null;
 			}
 		}
-
-
 		public static IDictionary<dynamic, dynamic> UploadFile(IFormFile file)
 		{
 			try
@@ -63,8 +61,5 @@ namespace Sale.Service.Common
 				return null;
 			}
 		}
-
-
-		
 	}
 }

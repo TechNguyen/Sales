@@ -91,28 +91,52 @@ namespace Sale.Service.ProductService
 		{
 			try
 			{
-				var query = from q in _productRepository.GetQueryable()
-							join  btbl in _branchRepository.GetQueryable() on q.BranchId equals btbl.Id into bt
-							from b in bt.DefaultIfEmpty()
-							join otbl  in _originRepository.GetQueryable() on q.OriginId equals otbl.Id into ot
-							from o in  ot.DefaultIfEmpty()
 
- 							where q.IsDelete == false || q.IsDelete == null
-							select new ProductDto
+
+				var query = (from q in _productRepository.GetQueryable()
+							 join btbl in _branchRepository.GetQueryable() on q.BranchId equals btbl.Id into bt
+							 from b in bt.DefaultIfEmpty()
+							 join otbl in _originRepository.GetQueryable() on q.OriginId equals otbl.Id into ot
+							 from o in ot.DefaultIfEmpty()
+							 where q.IsDelete == false || q.IsDelete == null
+							 select new
+							 {
+								 Product = q,
+								 Branch = b,
+								 Origin = o,
+								 Files = (from file in _fileImageRepository.GetQueryable()
+										  where file.ProductId == q.Id
+										  select new FileImageDto
+										  {
+											  extension = file.extension,
+											  FileName = file.FileName,
+											  FilePath = file.FilePath, 
+											  fileSize = file.fileSize,
+											  CreateAt= file.CreatedDate,
+											  mime = file.mime
+										  }).ToList()
+							 })
+							.AsEnumerable()
+							.Select(x => new ProductDto
 							{
-								ProdcutPrice = q.ProdcutPrice,
-								ProductName = q.ProductName,
-								ProductDescription = q.ProductDescription,
-								ProductMaterial = q.ProductMaterial,
-								BranchName = b.BranchName,
-								ProductType = q.ProductType,
-								comment = q.comment,
-								views = q.views,
-								OriginName = o.OriginName,
-								ProductQuanlity = q.ProductQuanlity,
-								ProductSold = q.ProductSold,
-								Id = q.Id,
-							};
+								ProdcutPrice = x.Product.ProdcutPrice,
+								ProductName = x.Product.ProductName,
+								ProductDescription = x.Product.ProductDescription,
+								ProductMaterial = x.Product.ProductMaterial,
+								BranchName = x.Branch?.BranchName,
+								ProductType = x.Product.ProductType,
+								comment = x.Product.comment,
+								views = x.Product.views,
+								OriginName = x.Origin?.OriginName,
+								ProductQuanlity = x.Product.ProductQuanlity,
+								ProductSold = x.Product.ProductSold,
+								Id = x.Product.Id,
+								rate = x.Product.rate,
+								listFile = x.Files
+							}).AsQueryable();
+
+
+				
 
 				if(searchDto != null)
 				{
