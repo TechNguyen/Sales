@@ -57,13 +57,14 @@ namespace Sale.Service.ProductService
 								 ProductName = q.ProductName,
 								 ProductDescription = q.ProductDescription,
 								 ProductMaterial = q.ProductMaterial,
-								 BranchName = branch != null ? branch.BranchName : null, // Ensure branch is not null before accessing its properties
+								 BranchName = branch != null ? branch.BranchName : null,
 								 ProductType = q.ProductType,
 								 comment = q.comment,
 								 views = q.views,
 								 ProductQuanlity = q.ProductQuanlity,
 								 ProductSold = q.ProductSold,
-								 OriginName = origin != null ? origin.OriginName : null, // Ensure origin is not null before accessing its properties
+								 rate = q.rate,
+								 OriginName = origin != null ? origin.OriginName : null,
 							 }).FirstOrDefault();
 
 
@@ -91,8 +92,6 @@ namespace Sale.Service.ProductService
 		{
 			try
 			{
-
-
 				var query = (from q in _productRepository.GetQueryable()
 							 join btbl in _branchRepository.GetQueryable() on q.BranchId equals btbl.Id into bt
 							 from b in bt.DefaultIfEmpty()
@@ -124,6 +123,8 @@ namespace Sale.Service.ProductService
 								ProductDescription = x.Product.ProductDescription,
 								ProductMaterial = x.Product.ProductMaterial,
 								BranchName = x.Branch?.BranchName,
+								BranchId = x.Branch?.Id,
+								OriginId = x.Origin?.Id,
 								ProductType = x.Product.ProductType,
 								comment = x.Product.comment,
 								views = x.Product.views,
@@ -149,7 +150,7 @@ namespace Sale.Service.ProductService
 					}
 					if(!string.IsNullOrEmpty(searchDto.BranchId.ToString()))
 					{
-						query = query.Where(x => x.BranchId == searchDto.BranchId);	
+						query = query.Where(x => x.BranchId == searchDto.BranchId).AsQueryable();	
 					}
 					if(!string.IsNullOrEmpty(searchDto.OriginId.ToString()))
 					{
