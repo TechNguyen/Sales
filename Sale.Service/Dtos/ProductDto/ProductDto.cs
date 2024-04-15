@@ -38,8 +38,7 @@ namespace Sale.Service.Dtos.ProductDto
         public Guid? OriginId { get; set; }
         public Guid? BranchId { get; set; }
 
-
-
         public List<FileImageDto.FileImageDto> listFile { get; set; }
+
     }
 }

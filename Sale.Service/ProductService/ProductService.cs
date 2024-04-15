@@ -88,6 +88,62 @@ namespace Sale.Service.ProductService
 			}
 		}
 
+		public List<ProductDto>? GetBestSaleProduct()
+		{
+			try
+			{
+				var query = (from q in _productRepository.GetQueryable()
+							 join btbl in _branchRepository.GetQueryable() on q.BranchId equals btbl.Id into bt
+							 from b in bt.DefaultIfEmpty()
+							 join otbl in _originRepository.GetQueryable() on q.OriginId equals otbl.Id into ot
+							 from o in ot.DefaultIfEmpty()
+							 where q.IsDelete == false || q.IsDelete == null
+							 select new
+							 {
+								 Product = q,
+								 Branch = b,
+								 Origin = o,
+								 Files = (from file in _fileImageRepository.GetQueryable()
+										  where file.ProductId == q.Id
+										  select new FileImageDto
+										  {
+											  extension = file.extension,
+											  FileName = file.FileName,
+											  FilePath = file.FilePath,
+											  fileSize = file.fileSize,
+											  CreateAt = file.CreatedDate,
+											  mime = file.mime
+										  }).ToList()
+							 })
+							.AsEnumerable()
+							.Select(x => new ProductDto
+							{
+								ProdcutPrice = x.Product.ProdcutPrice,
+								ProductName = x.Product.ProductName,
+								ProductDescription = x.Product.ProductDescription,
+								ProductMaterial = x.Product.ProductMaterial,
+								BranchName = x.Branch?.BranchName,
+								BranchId = x.Branch?.Id,
+								OriginId = x.Origin?.Id,
+								ProductType = x.Product.ProductType,
+								comment = x.Product.comment,
+								views = x.Product.views,
+								OriginName = x.Origin?.OriginName,
+								ProductQuanlity = x.Product.ProductQuanlity,
+								ProductSold = x.Product.ProductSold,
+								Id = x.Product.Id,
+								rate = x.Product.rate,
+								listFile = x.Files
+							}).AsQueryable();
+				query = query.OrderBy(x => x.rate);
+				return query.ToList();
+			}
+			catch (Exception ex)
+			{
+				return null;
+			}
+		}
+
 		public async Task<PageList<ProductDto>> GetDataByPage(ProductSearchDto searchDto)
 		{
 			try
@@ -162,7 +218,7 @@ namespace Sale.Service.ProductService
 					}
 					if (searchDto.PageSize == null || searchDto.PageSize <= 0)
 					{
-						searchDto.PageSize = 1;
+						searchDto.PageSize = 10;
 					}
 					if(searchDto.listPrice != null)
 					{
@@ -175,6 +231,7 @@ namespace Sale.Service.ProductService
 					}
 
 				}
+				query = query.OrderBy(x => x.rate);
 				var items = PageList<ProductDto>.Cretae(query,searchDto);
 				return items;
 			}

@@ -14,7 +14,8 @@ using Sale.Service.ProductService;
 using Sales.Model.Product;
 using System.Net.WebSockets;
 using System.Security.Claims;
-
+using CloudinaryDotNet;
+using CloudinaryDotNet.Actions;
 namespace Sales.Controllers
 {
 	[Route("api/[controller]")]
@@ -25,7 +26,9 @@ namespace Sales.Controllers
         private readonly IProductService _productService;
         private readonly IMapper _mapper;
 		private readonly IFileImageService _fileImageService;
-        public ProductController(
+
+		private readonly Cloudinary _cloudinary;
+		public ProductController(
 			ILogger<ProductController> logger,
             IProductService productService,
             IMapper mapper,
@@ -35,6 +38,11 @@ namespace Sales.Controllers
             _logger = logger;
             _mapper = mapper;
 			_fileImageService = fileImageService;
+			_cloudinary = new Cloudinary(new Account(
+					"dwfjwrh8a",
+					"916367626457865",
+					"MYTGVsP0Hkswzq9KXUn_Wpnbm14"
+					));
         }
 
         /// <summary>
@@ -42,7 +50,6 @@ namespace Sales.Controllers
         /// </summary>
         /// <param name="entity"></param>
         /// <returns></returns>
-
 		[HttpPost("create")]
 		[Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([FromForm] CreateVM entity)
@@ -53,27 +60,51 @@ namespace Sales.Controllers
                 obj = _mapper.Map<Product>(entity);
 				await _productService.Create(obj);
 				//xử lý upload
-				foreach (var img in entity.ListFileImg)
+				if(entity.ListFileImg != null)
 				{
-					var rs = FileExtension.UploadFile(img);
-					if (rs != null)
+					foreach (var img in entity.ListFileImg)
 					{
-						var filenew = new FileImageDto()
+						var rs = FileExtension.UploadFile(img);
+						if (rs != null)
 						{
-							ProductId = obj.Id,
-							CreateAt = DateTime.Now,
-							extension = rs[FileConstant.FILEDETAIL][FileConstant.FILEXTEMSION],
-							fileSize = rs[FileConstant.FILESIZE],
-							FileName = rs[FileConstant.FILEDETAIL][FileConstant.FILENAMECONVERT],
-							FilePath = rs[FileConstant.FILEPATH],
-							mime = rs[FileConstant.MIME],
-						};
-						var obbjFile = new FileImage();
-						obbjFile = _mapper.Map<FileImage>(filenew);
-						obbjFile.CreatedDate = DateTime.Now;
-						await _fileImageService.Create(obbjFile);
+							var filenew = new FileImageDto()
+							{
+								ProductId = obj.Id,
+								CreateAt = DateTime.Now,
+								extension = rs[FileConstant.FILEDETAIL][FileConstant.FILEXTEMSION],
+								fileSize = rs[FileConstant.FILESIZE],
+								FileName = rs[FileConstant.FILEDETAIL][FileConstant.FILENAMECONVERT],
+								FilePath = rs[FileConstant.FILEPATH],
+								mime = rs[FileConstant.MIME],
+							};
+							var obbjFile = new FileImage();
+							obbjFile = _mapper.Map<FileImage>(filenew);
+							obbjFile.CreatedDate = DateTime.Now;
+							_cloudinary.Api.Secure = true;
+							var uploadCloudniary = new ImageUploadParams()
+							{
+								Folder = "Sale",
+								File = new FileDescription(Path.Combine(Directory.GetCurrentDirectory(), filenew.FilePath))
+							};
+							try
+							{
+								var uplaodresult = _cloudinary.Upload(uploadCloudniary);
+								obbjFile.FileName = uplaodresult.SecureUrl.ToString();
+								await _fileImageService.Create(obbjFile);
+							}
+							catch (Exception e)
+							{
+								return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
+								{
+									Status = StatusConstant.ERROR,
+									Message = e.Message,
+								});
+							}
+
+						}
 					}
 				}
+				
 				return StatusCode(StatusCodes.Status201Created, new ResponseWithDataDto<dynamic>
                 {
                     Data = obj,
@@ -90,9 +121,6 @@ namespace Sales.Controllers
 				});
             }
         }
-
-
-
         [HttpPost("getall")]
 		[AllowAnonymous]
 		public async Task<IActionResult> GetDataByPage([FromBody] ProductSearchDto searchEntity)
@@ -115,10 +143,7 @@ namespace Sales.Controllers
 					Message = ex.Message
 				});
 			}
-
-
         }
-
 		/// <summary>
 		/// Cập nhật
 		/// </summary>
@@ -127,7 +152,6 @@ namespace Sales.Controllers
 		/// <returns></returns>
 		[HttpPut("Edit")]
 		[Authorize(Roles = "Admin")]
-
 		public async Task<IActionResult> Edit([FromBody] EditVM entity, [FromQuery] Guid id)
 		{
 			try
@@ -163,9 +187,6 @@ namespace Sales.Controllers
 				});
 			}
 		}
-
-
-
 		[HttpDelete("delete")]
 		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> Delete([FromQuery] Guid Id)
@@ -241,9 +262,6 @@ namespace Sales.Controllers
 				});
 			}
 		}
-
-
-
 		[HttpGet("find-by-id")]
 		[AllowAnonymous]
 		public async Task<IActionResult> GetById([FromQuery] Guid id)
@@ -267,9 +285,6 @@ namespace Sales.Controllers
 				});
 			}
 		}
-
-
-
 		[HttpPost("delete-soft")]
 		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> DeleteSoft([FromQuery] Guid id)
@@ -317,6 +332,31 @@ namespace Sales.Controllers
 			}
 
 
+		}
+
+
+
+		[HttpGet("getBestSale")]
+		public async Task<IActionResult> GetBestSale()
+		{
+			try
+			{
+				var item = _productService.GetBestSaleProduct();
+				return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<List<ProductDto>>
+				{
+					Data = item,
+					Status = StatusConstant.SUCCESS,
+					Message = "Lấy thành công"
+				});
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
+				{
+					Status = StatusConstant.ERROR,
+					Message = ex.Message
+				});
+			}
 		}
 
 	}
