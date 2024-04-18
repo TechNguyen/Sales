@@ -28,7 +28,7 @@ namespace Sales.Controllers
 
 
 		[HttpPost("create")]
-		[Authorize(Roles = "Admin,User")]
+		[AllowAnonymous]
 		public async Task<IActionResult> Create([FromForm] CreateVM entity)
 		{
 			try
@@ -37,17 +37,7 @@ namespace Sales.Controllers
 				obj = _mapper.Map<Orders>(entity);
 				obj.CreatedDate = DateTime.Now;
 				//xử lý upload
-
-				var claimsIdentity = HttpContext.User.Identity as ClaimsIdentity;
-				if (claimsIdentity != null)
-				{
-					var name = claimsIdentity.FindFirst(ClaimTypes.Name);
-					obj.CreatedBy = name.Value;
-				}
-
 				await _ordersService.Create(obj);
-
-
 				return StatusCode(StatusCodes.Status201Created, new ResponseWithDataDto<Orders>
 				{
 					Data = obj,

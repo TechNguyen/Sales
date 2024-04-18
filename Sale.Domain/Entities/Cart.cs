@@ -9,7 +9,7 @@ namespace Sale.Domain.Entities
 {
 	public class Cart : AuditableEntity
 	{
-        public int? Quanlity { get; set; }
+        public int? count { get; set; }
         public Guid? ProductId { get; set; }
         public Guid? PromotionId { get; set; }
 

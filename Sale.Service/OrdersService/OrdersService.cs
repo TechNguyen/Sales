@@ -55,12 +55,13 @@ namespace Sale.Service.OrdersService
 							{
 								Id = q.Id,
 								ShippingDate = q.ShippingDate,
-								TotalCount = q.TotalCount,
 								Status = q.Status,
-								UserId = q.UserId,
 								Createat = q.CreatedDate,
-								Address = q.Address,
-								PhoneNumber = q.PhoneNumber,
+								address = q.address,
+							    mobile = q.mobile,
+								totalPrice = q.totalPrice,
+								firstName = q.firstName,
+								lastName = q.lastName,
 							};
 
 				if (searchDto != null)
@@ -71,7 +72,7 @@ namespace Sale.Service.OrdersService
 					}
 					if (searchDto.PhoneNumber != null)
 					{
-						query = query.Where(x => x.PhoneNumber == searchDto.PhoneNumber);
+						query = query.Where(x => x.mobile == searchDto.PhoneNumber);
 					}
 					if (searchDto.PageIndex == null || searchDto.PageIndex <= 0)
 					{
