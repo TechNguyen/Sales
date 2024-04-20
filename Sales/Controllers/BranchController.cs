@@ -100,6 +100,38 @@ namespace Sales.Controllers
 
 		}
 
+
+		[HttpPost("get")]
+		[AllowAnonymous]
+
+		public async Task<IActionResult> getNotPage([FromBody] BranchSearchDto? searchEntity)
+		{
+
+			try
+			{
+				var obj = await _branchService.getAll(searchEntity);
+
+				return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<List<BranchDto>?>
+				{
+					Data = obj,
+					Status = StatusConstant.SUCCESS,
+					Message = "Lấy thương hiệu thành công"
+				});
+
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
+				{
+					Status = StatusConstant.ERROR,
+					Message = ex.Message
+				});
+			}
+
+
+		}
+
+
 		/// <summary>
 		/// Cập nhật
 		/// </summary>

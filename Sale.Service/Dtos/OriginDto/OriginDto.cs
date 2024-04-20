@@ -8,7 +8,8 @@ namespace Sale.Service.Dtos.OriginDto
 {
 	public class OriginDto
 	{
-		public string? OriginName { get; set; }
+        public Guid? Id { get; set; }
+        public string? OriginName { get; set; }
 
 	}
 }

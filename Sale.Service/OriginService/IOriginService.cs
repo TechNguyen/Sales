@@ -13,5 +13,8 @@ namespace Sale.Service.OriginService
 	public interface IOriginService : IService<Origin>
 	{
 		Task<PageList<OriginDto>> GetDataBypage(OriginSearchDto searchDto);
+
+		List<OriginDto>? GetAll(OriginSearchDto? searchDto);
+
 	}
 }

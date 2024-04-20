@@ -14,5 +14,6 @@ namespace Sale.Service.BranchService
 	{
 		Task<PageList<BranchDto>> GetDataByPage(BranchSearchDto searchDto);
 		Branch? FindById(Guid id);
+		Task<List<BranchDto>> getAll(BranchSearchDto searchDto);
 	}
 }

@@ -80,6 +80,36 @@ namespace Sales.Controllers
 
 		}
 
+
+
+
+		[HttpPost("get")]
+		[AllowAnonymous]
+		public async Task<IActionResult> getAll([FromBody] OriginSearchDto? searchEntity)
+		{
+
+			try
+			{
+				var obj = _originService.GetAll(searchEntity);
+				return StatusCode(StatusCodes.Status201Created, new ResponseWithDataDto<List<OriginDto>?>
+				{
+					Data = obj,
+					Status = StatusConstant.SUCCESS,
+					Message = "Lấy thương hiệu thành công"
+				});
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
+				{
+					Status = StatusConstant.ERROR,
+					Message = ex.Message
+				});
+			}
+
+
+		}
+
 		/// <summary>
 		/// Cập nhật
 		/// </summary>

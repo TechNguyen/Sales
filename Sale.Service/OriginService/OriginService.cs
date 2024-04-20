@@ -21,6 +21,32 @@ namespace Sale.Service.OriginService
 			_originRepository = originRepository; 
 		}
 
+		public List<OriginDto>? GetAll(OriginSearchDto searchDto)
+		{
+			var querry = from q in _originRepository.GetQueryable()
+						 select new OriginDto
+						 {
+							 Id = q.Id,
+							 OriginName = q.OriginName,
+							 
+						 };
+
+			if (searchDto != null)
+			{
+				if (searchDto.OriginName != null)
+				{
+					string normalStr = searchDto.OriginName.RemoveAccentsUnicode().ToLower();
+					querry = querry.Where(delegate (OriginDto x)
+					{
+						return x.OriginName.ToLower().RemoveAccentsUnicode().Contains(normalStr);
+					}).AsQueryable();
+				}
+			}
+
+
+			return querry.ToList();
+		}
+	
 		public async Task<PageList<OriginDto?>> GetDataBypage(OriginSearchDto searchDto)
 		{
 			try

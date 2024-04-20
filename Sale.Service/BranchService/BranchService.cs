@@ -97,5 +97,46 @@ namespace Sale.Service.BranchService
 				return null;
 			}
 		}
+
+
+		public async Task<List<BranchDto>> getAll(BranchSearchDto searchDto)
+		{
+			try
+			{
+				var query = from q in _branchRepository.GetQueryable()
+
+							join protbl in _productRepository.GetQueryable() on q.Id equals protbl.BranchId into pro
+							where q.IsDelete == null || q.IsDelete == false
+							select new BranchDto
+							{
+								BranchName = q.BranchName,
+								id = q.Id,
+								CountProduct = pro.Count(),
+								CreateDate = q.CreatedDate
+							};
+
+				if (searchDto != null)
+				{
+					if (!string.IsNullOrEmpty(searchDto.BranchName))
+					{
+						query = query.Where(delegate (BranchDto b)
+						{
+							return b.BranchName.RemoveAccentsUnicode().ToLower().Contains(searchDto.BranchName.RemoveAccentsUnicode().ToLower());
+						}).AsQueryable();
+					}
+				}
+				else
+				{
+					query = query.OrderByDescending(a => a.BranchName);
+				}
+				
+				return query.ToList();
+			}
+			catch (Exception ex)
+			{
+				return null;
+			}
+		}
+
 	}
 }
