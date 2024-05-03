@@ -1,7 +1,9 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Sale.Service.Constant;
 using Sale.Service.Dtos;
+using Sale.Service.SastisService;
 
 namespace Sales.Controllers
 {
@@ -10,19 +12,27 @@ namespace Sales.Controllers
 	public class SastisController : ControllerBase
 	{
 
-		public SastisController() { }
+		private readonly ISastisService _sastisService;
+
+		public SastisController(ISastisService sastisService = null)
+		{
+			_sastisService = sastisService;
+		}
 
 
 
-		[HttpGet]
+		[HttpGet("dashboard")]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> DashboardInformation()
 		{
 			try
 			{
-				return StatusCode(StatusCodes.Status200OK, new 
+				var data = _sastisService.GetAllData();
+				return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<dynamic>
 				{
 					Message = "Thong ke thanh cong",
-					
+					Data = data,
+					Status = StatusConstant.SUCCESS
 				});
 
 			}

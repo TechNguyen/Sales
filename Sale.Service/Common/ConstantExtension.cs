@@ -8,15 +8,15 @@ using System.Threading.Tasks;
 
 namespace Sale.Service.Common
 {
-	public static class ConstantExtension
+	public class ConstantExtension
 	{
 		public static string GetDisPlayConstant<T>(string propertyName)
 		{
 			Type type = typeof(T);
 			PropertyInfo pro = type.GetProperty(propertyName);
-			if (pro ==  null)
+			if (pro == null)
 			{
-				return pro.Name;
+				return propertyName;
 			}
 			else
 			{

@@ -57,6 +57,7 @@ namespace Sale.Service.OrdersService
 								ShippingDate = q.ShippingDate,
 								Createat = q.CreatedDate,
 								address = q.address,
+								Status = ConstantExtension.GetDisPlayConstant<OrdersConstant>(q.Status),
 							    mobile = q.mobile,
 								totalPrice = q.totalPrice,
 								firstName = q.firstName,

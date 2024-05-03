@@ -10,6 +10,8 @@ using System.Security.Claims;
 using Sale.Service.OrdersService;
 using Sales.Model.Orders;
 using Sale.Service.Dtos.OrdersDto;
+using Sale.Service.ProductService;
+using Sale.Service.Dtos.CartDto;
 
 namespace Sales.Controllers
 {
@@ -19,10 +21,12 @@ namespace Sales.Controllers
 	{
 		private readonly IMapper _mapper;
 		private readonly IOrdersService _ordersService;
-		public OrdersController(IMapper mapper, IOrdersService ordersService)
+		private readonly IProductService _productService;
+		public OrdersController(IMapper mapper, IOrdersService ordersService, IProductService productService = null)
 		{
 			_mapper = mapper;
 			_ordersService = ordersService;
+			_productService = productService;
 		}
 
 
@@ -82,51 +86,51 @@ namespace Sales.Controllers
 
 		}
 
-		//[HttpPut("Edit")]
-		//[Authorize(Roles = "Admin,User")]
-		//public async Task<IActionResult> Edit([FromForm] EditVM entity, [FromQuery] Guid id)
-		//{
+		[HttpPut("Edit")]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> Edit([FromBody] string status , [FromQuery] Guid id)
+		{
 
-		//	try
-		//	{
-		//		var data = _ordersService.FindBy(x => x.Id == id).FirstOrDefault();
-		//		if (data == null)
-		//		{
-		//			return StatusCode(StatusCodes.Status400BadRequest, new ResponseWithMessageDto
-		//			{
-		//				Status = StatusConstant.ERROR,
-		//				Message = "Không tồn tại đơn hàng"
-		//			});
-		//		}
-		//		else
-		//		{
-		//			var claims = HttpContext.User.Identity as ClaimsIdentity;
-		//			if (claims != null)
-		//			{
-		//				var name = claims.FindFirst(ClaimTypes.Name);
-		//				data.UpdatedBy = name.Value;
-		//			}
-		//			data = _mapper.Map<EditVM, Orders>(entity, data);
-		//			data.UpdatedDate = DateTime.Now;
-		//			await _ordersService.Update(data);
-		//			return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<Orders>
-		//			{
-		//				Data = data,
-		//				Status = StatusConstant.SUCCESS,
-		//				Message = "Cập nhật sản phẩm thành công"
-		//			});
-		//		}
+			try
+			{
+				var data = _ordersService.FindBy(x => x.Id == id).FirstOrDefault();
+				if (data == null)
+				{
+					return StatusCode(StatusCodes.Status400BadRequest, new ResponseWithMessageDto
+					{
+						Status = StatusConstant.ERROR,
+						Message = "Không tồn tại đơn hàng"
+					});
+				}
+				else
+				{
+					var claims = HttpContext.User.Identity as ClaimsIdentity;
+					if (claims != null)
+					{
+						var name = claims.FindFirst(ClaimTypes.Name);
+						data.UpdatedBy = name.Value;
+					}
+					data.Status = status;
+					data.UpdatedDate = DateTime.Now;
+					await _ordersService.Update(data);
+					return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<Orders>
+					{
+						Data = data,
+						Status = StatusConstant.SUCCESS,
+						Message = "Cập nhật sản phẩm thành công"
+					});
+				}
 
-		//	}
-		//	catch (Exception ex)
-		//	{
-		//		return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
-		//		{
-		//			Status = StatusConstant.ERROR,
-		//			Message = ex.Message
-		//		});
-		//	}
-		//}
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
+				{
+					Status = StatusConstant.ERROR,
+					Message = ex.Message
+				});
+			}
+		}
 
 		[HttpDelete("delete")]
 		[Authorize(Roles = "Admin")]
@@ -202,16 +206,38 @@ namespace Sales.Controllers
 		}
 
 		[HttpGet("detail")]
-		[AllowAnonymous]
+		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> Detail([FromQuery] Guid id)
 		{
 
 			try
 			{
-				var Orders = _ordersService.FindBy(x => x.Id == id).FirstOrDefault();
+				var Orders = _ordersService.GetQueryable().Where(q => q.Id == id).Select(q => new OrdersDto
+				{
+					Id = q.Id,
+					ShippingDate = q.ShippingDate,
+					Createat = q.CreatedDate,
+					address = q.address,
+					statuscon = q.Status,
+					Status = ConstantExtension.GetDisPlayConstant<OrdersConstant>(q.Status),
+					mobile = q.mobile,
+					totalPrice = q.totalPrice,
+					firstName = q.firstName,
+					lastName = q.lastName,
+					email = q.email,
+					orderNotes = q.orderNotes,
+					cartDtos = q.Carts.Select(x => new CartDto
+					{
+						count = x.count,
+						Id = x.Id,
+						produtId = x.ProductId,
+						ProductName = _productService.GetQueryable().Where(p => p.Id == x.ProductId).FirstOrDefault().ProductName,
+						Price = _productService.GetQueryable().Where(p => p.Id == x.ProductId).FirstOrDefault().ProdcutPrice
+					}).ToList()
+				}).FirstOrDefault();
 				if (Orders != null)
 				{
-					return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<Orders>
+					return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<OrdersDto>
 					{
 						Data = Orders,
 						Status = StatusConstant.SUCCESS,
@@ -283,5 +309,8 @@ namespace Sales.Controllers
 				});
 			}
 		}
+
+
+
 	}
 }

@@ -140,7 +140,7 @@ namespace Sales.Controllers
 		/// <returns></returns>
 		[HttpPut("Edit")]
 		[Authorize(Roles = "Admin")]
-		public async Task<IActionResult> Edit([FromBody] EditVM entity, [FromQuery] Guid id)
+		public async Task<IActionResult> Edit([FromBody] EditBranchVM entity, [FromQuery] Guid id)
 		{
 			try
 			{
@@ -150,7 +150,7 @@ namespace Sales.Controllers
 					return StatusCode(StatusCodes.Status400BadRequest, new ResponseWithMessageDto
 					{
 						Status = StatusConstant.ERROR,
-						Message = "Không tồn tại sản phẩm"
+						Message = "Không tồn tại thương hiệu"
 					});
 				}
 				else
@@ -161,7 +161,7 @@ namespace Sales.Controllers
 						var name = claims.FindFirst(ClaimTypes.Name);
 						data.UpdatedBy = name.Value;
 					}
-					data = _mapper.Map<EditVM,Branch>(entity,data);
+					data = _mapper.Map<EditBranchVM, Branch>(entity, data);
 					data.UpdatedDate = DateTime.Now;
 					await _branchService.Update(data);
 					return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<Branch>
