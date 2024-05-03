@@ -46,41 +46,49 @@ namespace Sale.Service.ProductService
 			try
 			{
 				var query = (from q in _productRepository.GetQueryable()
-							 join branchTBL in _branchRepository.GetQueryable() on q.BranchId equals branchTBL.Id into branchTB
-							 from branch in branchTB.DefaultIfEmpty()
-							 join oritbl in _originRepository.GetQueryable() on q.OriginId equals oritbl.Id into originTB
-							 from origin in originTB.DefaultIfEmpty()
-							 where q.Id == id
-							 select new ProductDetailDto
+							 join btbl in _branchRepository.GetQueryable() on q.BranchId equals btbl.Id into bt
+							 from b in bt.DefaultIfEmpty()
+							 join otbl in _originRepository.GetQueryable() on q.OriginId equals otbl.Id into ot
+							 from o in ot.DefaultIfEmpty()
+							 where q.IsDelete == false || q.IsDelete == null && q.Id == id
+							 select new
 							 {
-								 ProdcutPrice = q.ProdcutPrice,
-								 ProductName = q.ProductName,
-								 ProductDescription = q.ProductDescription,
-								 ProductMaterial = q.ProductMaterial,
-								 BranchName = branch != null ? branch.BranchName : null,
-								 ProductType = q.ProductType,
-								 comment = q.comment,
-								 views = q.views,
-								 ProductQuanlity = q.ProductQuanlity,
-								 ProductSold = q.ProductSold,
-								 rate = q.rate,
-								 OriginName = origin != null ? origin.OriginName : null,
-							 }).FirstOrDefault();
-
-
-				var queryImg = (from fileImg in _fileImageRepository.GetQueryable()
-								select new FileImageDto
-								{
-									extension = fileImg.extension,
-									fileSize = fileImg.fileSize,
-									FileName = fileImg.FileName,
-									FilePath = fileImg.FilePath,
-									mime = fileImg.mime,
-									CreateAt = fileImg.CreatedDate,
-								}).ToList();
-				query.listFileAndImage = new List<FileImageDto>();
-				query.listFileAndImage.AddRange(queryImg);
-                return query;
+								 Product = q,
+								 Branch = b,
+								 Origin = o,
+								 Files = (from file in _fileImageRepository.GetQueryable()
+										  where file.ProductId == q.Id
+										  select new FileImageDto
+										  {
+											  extension = file.extension,
+											  FileName = file.FileName,
+											  FilePath = file.FilePath,
+											  fileSize = file.fileSize,
+											  CreateAt = file.CreatedDate,
+											  mime = file.mime
+										  }).ToList()
+							 })
+							.AsEnumerable()
+							.Select(x => new ProductDetailDto
+							{
+								ProdcutPrice = x.Product.ProdcutPrice,
+								ProductName = x.Product.ProductName,
+								ProductDescription = x.Product.ProductDescription,
+								ProductMaterial = x.Product.ProductMaterial,
+								BranchName = x.Branch?.BranchName,
+								BranchId = x.Branch?.Id,
+								OriginId = x.Origin?.Id,
+								ProductType = x.Product.ProductType,
+								comment = x.Product.comment,
+								views = x.Product.views,
+								OriginName = x.Origin?.OriginName,
+								ProductQuanlity = x.Product.ProductQuanlity,
+								ProductSold = x.Product.ProductSold,
+								Id = x.Product.Id,
+								rate = x.Product.rate,
+								listFileAndImage = x.Files
+							}).AsQueryable();
+				return query.FirstOrDefault();
 			}
 			catch (Exception)
 			{

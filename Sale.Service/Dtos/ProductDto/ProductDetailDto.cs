@@ -9,7 +9,11 @@ namespace Sale.Service.Dtos.ProductDto
 {
 	public class ProductDetailDto
 	{
-		public string? BranchName { get; set; }
+
+
+
+        public Guid Id { get; set; }
+        public string? BranchName { get; set; }
 		public string? CategoryId { get; set; }
 		public string? OriginName { get; set; }
 		[DisplayName("Tên sản phẩm")]

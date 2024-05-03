@@ -55,13 +55,15 @@ namespace Sale.Service.OrdersService
 							{
 								Id = q.Id,
 								ShippingDate = q.ShippingDate,
-								Status = q.Status,
 								Createat = q.CreatedDate,
 								address = q.address,
 							    mobile = q.mobile,
 								totalPrice = q.totalPrice,
 								firstName = q.firstName,
 								lastName = q.lastName,
+								email = q.email,
+								orderNotes = q.orderNotes,
+								Carts = q.Carts
 							};
 
 				if (searchDto != null)

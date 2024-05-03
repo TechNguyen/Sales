@@ -21,7 +21,8 @@ namespace Sales.Controllers
 			{
 				return StatusCode(StatusCodes.Status200OK, new 
 				{
-					Message = "Tho"
+					Message = "Thong ke thanh cong",
+					
 				});
 
 			}

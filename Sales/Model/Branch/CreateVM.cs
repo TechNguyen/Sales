@@ -2,9 +2,6 @@
 {
 	public class CreateVM
 	{
-
 		public string? BranchName { get; set; }
-		//public List<IFormFile>? ListFileImg { get; set; }
-
 	}
 }

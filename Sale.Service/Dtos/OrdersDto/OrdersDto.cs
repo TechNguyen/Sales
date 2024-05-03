@@ -1,4 +1,6 @@
 ﻿using Sale.Domain.Entities;
+using Sale.Service.Common;
+using Sale.Service.Constant;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Sales.Model.Orders
@@ -9,7 +11,7 @@ namespace Sales.Model.Orders
 		public Guid? UserId { get; set; }
 
 		public DateTime? Createat { get; set; }
-		public string Status { get; set; }
+		public string Status => ConstantExtension.GetDisPlayConstant<OrdersConstant>(this.Status);
 		public string lastName { get; set; }
 		public string firstName { get; set; }
 		public double totalPrice { get; set; }

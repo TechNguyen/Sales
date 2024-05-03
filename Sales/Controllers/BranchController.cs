@@ -140,9 +140,8 @@ namespace Sales.Controllers
 		/// <returns></returns>
 		[HttpPut("Edit")]
 		[Authorize(Roles = "Admin")]
-		public async Task<IActionResult> Edit([FromForm] EditVM entity, [FromQuery] Guid id)
+		public async Task<IActionResult> Edit([FromBody] EditVM entity, [FromQuery] Guid id)
 		{
-
 			try
 			{
 				var data = _branchService.FindById(id);
@@ -169,7 +168,7 @@ namespace Sales.Controllers
 					{
 						Data = data,
 						Status = StatusConstant.SUCCESS,
-						Message = "Cập nhật sản phẩm thành công"
+						Message = "Cập nhật thương hiệu thành công"
 					});
 				}
 

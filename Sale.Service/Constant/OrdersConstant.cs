@@ -9,9 +9,17 @@ namespace Sale.Service.Constant
 	public class OrdersConstant
 	{
 		public static string DANGCHUANBI = "DANGCHUANBI";
+		public static string CHOXACNHAN = "CHOXACNHAN";
+
 		public static string DANGIAO = "DANGIAO";
 		public static string DANHAN = "DANHAN";
 		public static string DAGUI = "DAGUI";
 		public static string DATHANHTOAN = "DATHANHTOAN";
+		public static string THANHCONG = "THANHCONG";
+
+		public static string DAHUY = "DAHUY";
+		public static string THATBAI = "THATBAI";
+
+
 	}
 }
