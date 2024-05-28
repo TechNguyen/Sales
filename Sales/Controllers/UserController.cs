@@ -9,6 +9,7 @@ using Sale.Service.Constant;
 using Sale.Service.Dtos;
 using Sale.Service.Dtos.UserDto;
 using Sale.Service.EmailService;
+using Sales.Model.User;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
@@ -31,6 +32,9 @@ namespace Sales.Controllers
 		private readonly IEmailService _emailService;
 
 
+
+
+
 		public UserController(ILogger<UserController> logger, UserManager<IdentityUser> user, IEmailService emailService,RoleManager<IdentityRole> roleManager, IConfiguration configuration)
 		{
 			_user = user;
@@ -46,6 +50,8 @@ namespace Sales.Controllers
 		/// </summary>
 		/// <param name="register"></param>
 		/// <returns></returns>
+		/// 
+		[AllowAnonymous]		
 		[HttpPost("register")]
         public async Task<IActionResult> Register([FromBody] RegisterDto register)
         {
@@ -255,35 +261,63 @@ namespace Sales.Controllers
 			}
 		}
 		[AllowAnonymous]
-		[HttpPost("changePass")]
+		[HttpPut("changePass")]
 		public async Task<IActionResult> changePass([FromBody] ResetPassword reset)
 		{
 
 			try
 			{
-				var isChange = await _emailService.ChangePassWord(reset);
-				if (isChange.Succeeded)
+				//change by username
+				var user = await _user.FindByNameAsync(reset.username);
+
+				if (user == null)
 				{
-					return StatusCode(StatusCodes.Status200OK, new ResponseWithMessageDto
+					return StatusCode(StatusCodes.Status400BadRequest, new ResponseWithMessageDto
 					{
-						Status = StatusConstant.SUCCESS,
-						Message = "Thay đổi mật khẩu thành công"
+						Code  = 404,
+						Message = "Not Found User",
+                        Status = StatusConstant.ERROR,
+
+                    });
+				}
+				else if (reset.Password != reset.newPassword)
+				{
+					return StatusCode(StatusCodes.Status400BadRequest, new ResponseWithMessageDto
+					{
+						Code = 400,
+						Status  = StatusConstant.ERROR,
+						Message = "Confirm password not same new password"
 					});
 				}
 				else
 				{
-					
-					string error = "";
-					foreach (var err in isChange.Errors)
-					{
-						error += err.Description;
-					}
-					return StatusCode(StatusCodes.Status403Forbidden, new ResponseWithMessageDto
-					{
-						Status = StatusConstant.ERROR,
-						Message = error
-					});
-				}
+					var token = await _user.GeneratePasswordResetTokenAsync(user);
+					var isChange = await _user.ResetPasswordAsync(user,token,reset.Password);
+                    if (isChange.Succeeded)
+                    {
+                        return StatusCode(StatusCodes.Status200OK, new ResponseWithMessageDto
+                        {
+                            Status = StatusConstant.SUCCESS,
+                            Message = "Thay đổi mật khẩu thành công"
+                        });
+                    }
+                    else
+                    {
+
+                        string error = "";
+                        foreach (var err in isChange.Errors)
+                        {
+                            error += err.Description;
+                        }
+                        return StatusCode(StatusCodes.Status403Forbidden, new ResponseWithMessageDto
+                        {
+                            Status = StatusConstant.ERROR,
+                            Message = error
+                        });
+                    }
+                }
+			
+				
 			}
 			catch (Exception ex)
 			{
@@ -294,6 +328,45 @@ namespace Sales.Controllers
 				});
 			}
 			
+		}
+		[HttpGet("getUser")]
+		public async Task<IActionResult> GetUserDeatail([FromQuery] string UserId)
+		{
+
+			try
+			{
+				var userDetail = await _user.FindByIdAsync(UserId); 
+				if (userDetail != null)
+				{
+					return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<dynamic>
+					{
+						Status = StatusConstant.SUCCESS,
+						Code = 200,
+						Data= userDetail,
+						Message = "Get user detail successfuly"
+					});
+				}
+				else
+				{
+					return StatusCode(StatusCodes.Status404NotFound, new ResponseWithMessageDto
+					{
+						Message = "User not foudn",
+						Status = StatusConstant.ERROR,
+						Code = 404
+					});
+				}
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status100Continue, new ResponseWithMessageDto
+				{
+					Message = ex.Message,
+					Code = 500,
+					Status = StatusConstant.ERROR,
+				});
+			}
+
+
 		}
 	}
 }

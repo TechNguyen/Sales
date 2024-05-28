@@ -21,29 +21,21 @@ namespace Sale.Service.CommentsService
 			_commentsRepository = commentsRepository;
 		}
 
-		public PageList<CommentsDto> GetByProduct(Guid prroductId, CommentsSearchDto searchDto)
+		public List<CommentsDto> GetByProduct(Guid productId)
 		{
 			try
 			{
 				var query = from q in _commentsRepository.GetQueryable()
-							where q.ProductId == prroductId
-							select new CommentsDto
+							where q.ProductId == productId
+                            select new CommentsDto
 							{
 								ProductId = q.ProductId,
-								UserId = q.UserId,
-								createAt = q.CreatedDate,
-								Comment = q.Comment,
+								userPost = q.userPost,
+								comment = q.comment,
+								email = q.email,
+								createAt = q.CreatedDate
 							};
-				if (searchDto.PageSize == null && searchDto.PageSize <= 0)
-				{
-					searchDto.PageSize = 10;
-				}
-				if (searchDto.PageIndex == null && searchDto.PageIndex <= 0)
-				{
-					searchDto.PageIndex = 1;
-				}
-				var data = PageList<CommentsDto>.Cretae(query, searchDto);
-				return data;
+				return query.ToList();
 			}
 			catch (Exception e)
 			{

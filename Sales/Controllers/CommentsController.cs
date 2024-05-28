@@ -29,10 +29,9 @@ namespace Sales.Controllers
 			_usermanager = usermanager;
 		}
 
-
+		[AllowAnonymous]
 		[HttpPost("create")]
-		[Authorize(Roles = "Admin,User")]
-		public async Task<IActionResult> Create([FromForm] CreateVM entity)
+		public async Task<IActionResult> Create([FromBody] CreateVM entity)
 		{
 			try
 			{
@@ -40,8 +39,7 @@ namespace Sales.Controllers
 				obj = _mapper.Map<Comments>(entity);
 				obj.CreatedDate = DateTime.Now;
 				var claimsIdentity = HttpContext.User.Identity as ClaimsIdentity;
-
-				if (claimsIdentity != null)
+				if (claimsIdentity.IsAuthenticated)
 				{
 					var name = claimsIdentity.FindFirst(ClaimTypes.Name);
 					obj.CreatedBy = name.Value;
@@ -51,7 +49,7 @@ namespace Sales.Controllers
 				{
 					Data = obj,
 					Status = StatusConstant.SUCCESS,
-					Message = "Thành công"
+					Message = "Comment successfully"
 				});
 			}
 			catch (Exception ex)
@@ -63,13 +61,14 @@ namespace Sales.Controllers
 				});
 			}
 		}
-		[HttpPost("find-by-product")]
-		public async Task<IActionResult> FindByID([FromQuery] Guid ProductId, [FromBody] CommentsSearchDto searchDto)
-		{
 
+		[AllowAnonymous]
+		[HttpGet("find-by-product")]
+		public async Task<IActionResult> FindByID([FromQuery] Guid ProductID)
+		{
 			try
 			{
-				var data = _commentsService.GetByProduct(ProductId, searchDto);
+				var data = _commentsService.GetByProduct(ProductID);
 				return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<dynamic>
 				{
 					Data = data,
@@ -211,6 +210,7 @@ namespace Sales.Controllers
 				});
 			}
 		}
+
 
 
 

@@ -9,10 +9,11 @@ namespace Sale.Service.Dtos
 {
 	public class ResetPassword
 	{
-		public string userId { get; set; }
+        public string username { get; set; }
+        [Required, DataType(DataType.Password)]
+		public string Password { get; set; }
 		[Required, DataType(DataType.Password)]
 		public string newPassword { get; set; }
-		[Required, DataType(DataType.Password)]
-		public string confirmpass { get; set; }
+
 	}
 }

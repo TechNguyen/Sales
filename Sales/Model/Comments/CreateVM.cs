@@ -2,8 +2,9 @@
 {
 	public class CreateVM
 	{
-		public Guid? UserId { get; set; }
-		public Guid? ProductId { get; set; }
-		public string Comment { get; set; }
-	}
+        public Guid? ProductId { get; set; }
+        public string? userPost { get; set; }
+        public string? email { get; set; }
+        public string? comment { get; set; }
+    }
 }

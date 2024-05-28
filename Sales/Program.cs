@@ -125,7 +125,10 @@ builder.Services.AddScoped<IEmailService, EmailService>();
 
 builder.Services.Configure<SMTP>(builder.Configuration.GetSection("SMTPConfig"));
 
-
+builder.Services.AddSwaggerGen(c =>
+{
+    c.CustomSchemaIds(type => type.ToString());
+});
 builder.Services.AddCors(options =>
 {
 	options.AddPolicy("AllowAnyOrigin",

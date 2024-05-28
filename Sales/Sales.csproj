@@ -45,7 +45,6 @@
 
   <ItemGroup>
     <Folder Include="Model\FileImage\" />
-    <Folder Include="Model\UserModel\" />
     <Folder Include="Uploads\" />
   </ItemGroup>
 

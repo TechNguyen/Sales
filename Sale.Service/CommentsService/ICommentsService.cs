@@ -13,6 +13,6 @@ namespace Sale.Service.CommentsService
 {
 	public interface ICommentsService : IService<Comments>
 	{
-		PageList<CommentsDto> GetByProduct(Guid prroductId, CommentsSearchDto searchDto);
+        List<CommentsDto> GetByProduct(Guid productId);
 	}
 }

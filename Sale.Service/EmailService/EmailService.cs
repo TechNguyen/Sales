@@ -127,7 +127,7 @@ namespace Sale.Service.EmailService
 		{
 			try
 			{
-				IdentityUser user = await _userManager.FindByIdAsync(resetmodel.userId);
+				IdentityUser user = await _userManager.FindByIdAsync(resetmodel.username);
 				if (user != null)
 				{
 
