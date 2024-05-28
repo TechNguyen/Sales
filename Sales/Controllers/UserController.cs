@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.Win32;
 using Sale.Domain.Entities;
+using Sale.Service.Common;
 using Sale.Service.Constant;
 using Sale.Service.Dtos;
 using Sale.Service.Dtos.UserDto;
@@ -368,5 +369,46 @@ namespace Sales.Controllers
 
 
 		}
+
+
+
+		[HttpPost("getUser")]
+		[Authorize(Roles = "Admin")]
+		public async Task<IActionResult> GetAllUser([FromBody] SearchBase searchEntity)
+		{
+			try
+			{
+				var data = _user.Users.Select(m => new
+				{
+                    UserName = m,
+                    RoleName = _user.GetRolesAsync(m).Result
+				}).Select(x => new UserDto
+				{
+					Email = x.UserName.Email,
+					Phone = x.UserName.PhoneNumber,
+					UserName = x.UserName.UserName,
+					RoleName = string.Join(",", x.RoleName)
+				}).ToList();
+				return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<dynamic>
+				{
+					Status = StatusConstant.SUCCESS,
+					Code = 200,
+					Message = "Get userSuccessfully",
+					Data = data
+				}); ;
+			}
+			catch (Exception ex)
+			{
+                return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
+                {
+                    Message = ex.Message,
+                    Code = 500,
+                    Status = StatusConstant.ERROR,
+                });
+            }
+
+
+		}
+
 	}
 }

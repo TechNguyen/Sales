@@ -17,5 +17,7 @@ namespace Sale.Service.Dtos.ProductDto
 
         public Guid? OriginId  { get; set; }
 
+		public string? SortBy { get; set; }
+
     }
 }

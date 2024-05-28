@@ -197,7 +197,7 @@ namespace Sale.Service.ProductService
 								ProductSold = x.Product.ProductSold,
 								Id = x.Product.Id,
 								rate = x.Product.rate,
-								listFile = x.Files
+								listFile = x.Files,
 							}).AsQueryable();
 
 
@@ -237,9 +237,20 @@ namespace Sale.Service.ProductService
 							query = query.Where(x => x.ProdcutPrice >= minPrice && x.ProdcutPrice <= maxPrice);
 						}
 					}
+					if (!string.IsNullOrEmpty(searchDto.SortBy) )
+					{
+						if (searchDto.SortBy == "DES")
+						{
+							query = query.OrderByDescending(x => x.ProdcutPrice);
+						}
+						else
+						{
+							query = query.OrderBy(m => m.ProdcutPrice);
+						}
+					}
 
 				}
-				query = query.OrderBy(x => x.rate);
+		
 				var items = PageList<ProductDto>.Cretae(query,searchDto);
 				return items;
 			}
