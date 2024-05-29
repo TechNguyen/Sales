@@ -234,12 +234,12 @@ namespace Sale.Service.ProductService
 						{
 							var minPrice = item[PriceConstant.MIN];
 							var maxPrice = item[PriceConstant.MAX];
-							query = query.Where(x => x.ProdcutPrice >= minPrice && x.ProdcutPrice <= maxPrice);
+							query = query.Where(x => x.ProdcutPrice >= minPrice && x.ProdcutPrice <= maxPrice && x.ProdcutPrice != null);
 						}
 					}
 					if (!string.IsNullOrEmpty(searchDto.SortBy) )
 					{
-						if (searchDto.SortBy == "DES")
+						if (searchDto.SortBy == "DES")	
 						{
 							query = query.OrderByDescending(x => x.ProdcutPrice);
 						}

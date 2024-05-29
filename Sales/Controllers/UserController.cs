@@ -22,20 +22,10 @@ namespace Sales.Controllers
 	public class UserController : ControllerBase
 	{
 		private readonly ILogger<UserController> _logger;
-
 		private readonly UserManager<IdentityUser> _user;
-
 		private readonly RoleManager<IdentityRole> _roleManager;
-
 		private readonly IConfiguration _configuration;
-
-
 		private readonly IEmailService _emailService;
-
-
-
-
-
 		public UserController(ILogger<UserController> logger, UserManager<IdentityUser> user, IEmailService emailService,RoleManager<IdentityRole> roleManager, IConfiguration configuration)
 		{
 			_user = user;
@@ -330,10 +320,9 @@ namespace Sales.Controllers
 			}
 			
 		}
-		[HttpGet("getUser")]
+		[HttpGet("getUserDetail")]
 		public async Task<IActionResult> GetUserDeatail([FromQuery] string UserId)
 		{
-
 			try
 			{
 				var userDetail = await _user.FindByIdAsync(UserId); 
@@ -376,29 +365,36 @@ namespace Sales.Controllers
 		[Authorize(Roles = "Admin")]
 		public async Task<IActionResult> GetAllUser([FromBody] SearchBase searchEntity)
 		{
-			try
-			{
-				var data = _user.Users.Select(m => new
-				{
-                    UserName = m,
-                    RoleName = _user.GetRolesAsync(m).Result
-				}).Select(x => new UserDto
-				{
-					Email = x.UserName.Email,
-					Phone = x.UserName.PhoneNumber,
-					UserName = x.UserName.UserName,
-					RoleName = string.Join(",", x.RoleName)
-				}).ToList();
-				return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<dynamic>
-				{
-					Status = StatusConstant.SUCCESS,
-					Code = 200,
-					Message = "Get userSuccessfully",
-					Data = data
-				}); ;
-			}
-			catch (Exception ex)
-			{
+            try
+            {
+                var users = _user.Users.ToList(); // Assuming _user.Users is IQueryable or IEnumerable
+
+                var data = new List<UserDto>();
+
+                foreach (var user in users)
+                {
+                    var roles = await _user.GetRolesAsync(user);
+                    var userDto = new UserDto
+                    {
+						UserId = user.Id,
+                        Email = user.Email,
+                        Phone = user.PhoneNumber,
+                        UserName = user.UserName,
+                        RoleName = string.Join(",", roles)
+                    };
+                    data.Add(userDto);
+                }
+
+                return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<dynamic>
+                {
+                    Status = StatusConstant.SUCCESS,
+                    Code = 200,
+                    Message = "Get user successfully",
+                    Data = data
+                });
+            }
+            catch (Exception ex)
+            {
                 return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
                 {
                     Message = ex.Message,
@@ -407,8 +403,7 @@ namespace Sales.Controllers
                 });
             }
 
-
-		}
+        }
 
 	}
 }
