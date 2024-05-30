@@ -46,7 +46,10 @@ namespace Sale.Service.SastisService
 			sastis.listBranch = context.Branchs.AsQueryable().Select(x => new KeyValuePair<string, int>(x.BranchName,context.Products.Where(p => p.BranchId == x.Id).Count())).ToList();
 			sastis.totalByYear = context.Orders.Where(t => t.Status == OrdersConstant.THANHCONG && t.CreatedDate.Year == DateTime.Now.Year).Sum(t => t.totalPrice);
 
-			sastis.totalByMonth = context.Orders.Where(t => t.Status == OrdersConstant.THANHCONG && t.CreatedDate.Year == DateTime.Now.Year && t.CreatedDate.Month == DateTime.Now.Month).Sum(t => t.totalPrice);
+			sastis.countProductSold = context.Products.Where(x => x.ProductSold != null).Sum(x => x.ProductSold);
+
+
+            sastis.totalByMonth = context.Orders.Where(t => t.Status == OrdersConstant.THANHCONG && t.CreatedDate.Year == DateTime.Now.Year && t.CreatedDate.Month == DateTime.Now.Month).Sum(t => t.totalPrice);
 			if (context.Orders.Where(t => t.Status == OrdersConstant.THANHCONG && t.CreatedDate.Year == DateTime.Now.Year - 1).Sum(t => t.totalPrice) > 0)
 			{
 				sastis.percenCreaseGP = (sastis.totalByYear / context.Orders.Where(t => t.Status == OrdersConstant.THANHCONG && t.CreatedDate.Year == DateTime.Now.Year - 1).Sum(t => t.totalPrice)) * 100;

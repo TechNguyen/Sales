@@ -13,6 +13,9 @@ namespace Sale.Service.Dtos.OrdersDto
         public float? orderFailed { get; set; }
         public int? dataProduct { get; set; }
 
+
+        public int? countProductSold { get; set; }
+
         public List<KeyValuePair<string, int>> listBranch  { get; set;}
 
         public int? dataCountBranchs { get; set; }
