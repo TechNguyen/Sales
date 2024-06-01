@@ -149,7 +149,8 @@ namespace Sales.Controllers
 						var authClaim = new List<Claim> {
 							new Claim(ClaimTypes.Name, user.UserName),
 							new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
-						};
+							 new Claim("user_id", user.Id.ToString())
+                        };
 
 						foreach (var userRole in role)
 						{
@@ -404,6 +405,33 @@ namespace Sales.Controllers
             }
 
         }
+
+
+
+		[HttpGet("getbyId")]
+		[Authorize(Roles = "User")]
+		public async Task<IActionResult> GetById([FromQuery] string id)
+		{
+			try
+			{
+				var data = await _user.FindByIdAsync(id);
+				return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<dynamic>
+				{
+					Message = "Get succcess",
+					Data = data,
+					Code = 200,
+				});
+			}
+			catch (Exception ex)
+			{
+				return StatusCode(StatusCodes.Status500InternalServerError, new ResponseWithMessageDto
+				{
+					Message = ex.Message,
+					Code = 500,
+					Status = StatusConstant.ERROR
+				});
+			}
+		}
 
 	}
 }

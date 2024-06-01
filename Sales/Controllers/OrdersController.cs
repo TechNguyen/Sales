@@ -32,7 +32,7 @@ namespace Sales.Controllers
 
 
 		[HttpPost("create")]
-		[AllowAnonymous]
+		[Authorize(Roles = "Admin,User")]
 		public async Task<IActionResult> Create([FromBody] CreateVM entity)
 		{
 			try
@@ -59,7 +59,7 @@ namespace Sales.Controllers
 			}
 		}
 		[HttpPost("getall")]
-		[Authorize(Roles = "Admin")]
+		[Authorize(Roles = "Admin,User")]
 
 		public async Task<IActionResult> GetDataByPage([FromBody] OrdersSearchDto searchEntity)
 		{
@@ -309,6 +309,10 @@ namespace Sales.Controllers
 				});
 			}
 		}
+
+
+
+
 
 
 

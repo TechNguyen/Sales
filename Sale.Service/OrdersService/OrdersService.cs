@@ -44,55 +44,56 @@ namespace Sale.Service.OrdersService
 			}
 		}
 
-		public async Task<PageList<OrdersDto>> GetDataByPage(OrdersSearchDto searchDto)
-		{
-			try
-			{
-				var query = from q in _ordersRepository.GetQueryable()
-							
-							where q.IsDelete == false || q.IsDelete == null
-							select new OrdersDto
-							{
-								Id = q.Id,
-								ShippingDate = q.ShippingDate,
-								Createat = q.CreatedDate,
-								address = q.address,
-								Status = ConstantExtension.GetDisPlayConstant<OrdersConstant>(q.Status),
-							    mobile = q.mobile,
-								totalPrice = q.totalPrice,
-								firstName = q.firstName,
-								lastName = q.lastName,
-								email = q.email,
-								orderNotes = q.orderNotes,
-								Carts = q.Carts
-							};
+        public async Task<PageList<OrdersDto>> GetDataByPage(OrdersSearchDto searchDto)
+        {
+            try
+            {
+                var query = from q in _ordersRepository.GetQueryable()
 
-				if (searchDto != null)
-				{
-					if (searchDto.UserId != null)
-					{
-						query = query.Where(x => x.UserId == searchDto.UserId);
-					}
-					if (searchDto.PhoneNumber != null)
-					{
-						query = query.Where(x => x.mobile == searchDto.PhoneNumber);
-					}
-					if (searchDto.PageIndex == null || searchDto.PageIndex <= 0)
-					{
-						searchDto.PageIndex = 1;
-					}
-					if (searchDto.PageSize == null || searchDto.PageSize <= 0)
-					{
-						searchDto.PageSize = 1;
-					}
-				}
-				var items = PageList<OrdersDto>.Cretae(query, searchDto);
-				return items;
-			}
-			catch (Exception ex)
-			{
-				return null;
-			}
-		}
-	}
+                            where q.IsDelete == false || q.IsDelete == null
+                            select new OrdersDto
+                            {
+                                Id = q.Id,
+                                UserId = q.UserId,
+                                ShippingDate = q.ShippingDate,
+                                Createat = q.CreatedDate,
+                                address = q.address,
+                                Status = ConstantExtension.GetDisPlayConstant<OrdersConstant>(q.Status),
+                                mobile = q.mobile,
+                                totalPrice = q.totalPrice,
+                                firstName = q.firstName,
+                                lastName = q.lastName,
+                                email = q.email,
+                                orderNotes = q.orderNotes,
+                                Carts = q.Carts
+                            };
+
+                if (searchDto != null)
+                {
+                    if (searchDto.UserId != null)
+                    {
+                        query = query.Where(x => x.UserId == searchDto.UserId);
+                    }
+                    if (searchDto.PhoneNumber != null)
+                    {
+                        query = query.Where(x => x.mobile == searchDto.PhoneNumber);
+                    }
+                    if (searchDto.PageIndex == null || searchDto.PageIndex <= 0)
+                    {
+                        searchDto.PageIndex = 1;
+                    }
+                    if (searchDto.PageSize == null || searchDto.PageSize <= 0)
+                    {
+                        searchDto.PageSize = 1;
+                    }
+                }
+                var items = PageList<OrdersDto>.Cretae(query, searchDto);
+                return items;
+            }
+            catch (Exception ex)
+            {
+                return null;
+            }
+        }
+    }
 }
