@@ -17,5 +17,6 @@ namespace Sale.Service.OrdersService
 	{
 		Task<PageList<OrdersDto>> GetDataByPage(OrdersSearchDto searchDto);
 		OriginDto? FindDetailProduct(Guid id);
-	}
+        List<Cart> getByCartId(Guid CartId);
+    }
 }

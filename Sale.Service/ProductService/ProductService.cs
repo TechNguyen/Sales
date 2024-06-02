@@ -109,8 +109,9 @@ namespace Sale.Service.ProductService
 		public bool UpdateCountSold(Guid ProductId, int count)
 		{
 			var pro = _context.Products.Where(x => x.Id == ProductId).FirstOrDefault();
-			pro.ProductSold = pro.ProductSold + count;
-			pro.ProductQuanlity = pro.ProductQuanlity - count;
+		    var productSold = (pro.ProductSold == null ? 0 : pro.ProductSold) + count;
+			pro.ProductSold = productSold;
+			pro.ProductQuanlity -= count;
 			var check = _context.SaveChanges();
 			return check > 0 ? true : false;
 		}

@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Sale.Domain;
 using Sale.Domain.Entities;
 using Sale.Repository.OrdersRepository;
 using Sale.Service.Common;
@@ -20,11 +21,14 @@ namespace Sale.Service.OrdersService
 	public class OrdersService : Service<Orders> , IOrdersService
 	{
 		private readonly IOrdersRepository _ordersRepository;
-		public OrdersService(IOrdersRepository ordersRepository) : base(ordersRepository)
-		{
-			_ordersRepository = ordersRepository;
-		}
-		public OriginDto? FindDetailProduct(Guid id)
+        private readonly SaleContext _context;
+
+        public OrdersService(IOrdersRepository ordersRepository, SaleContext context) : base(ordersRepository)
+        {
+            _ordersRepository = ordersRepository;
+            _context = context;
+        }
+        public OriginDto? FindDetailProduct(Guid id)
 		{
 			try
 			{
@@ -95,5 +99,15 @@ namespace Sale.Service.OrdersService
                 return null;
             }
         }
+
+
+
+        public List<Cart> getByCartId(Guid CartId)
+        {
+            return _context.Carts.Where(x => x.CartId == CartId).ToList();
+        }
+
+
+      
     }
 }

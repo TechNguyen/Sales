@@ -12,6 +12,7 @@ namespace Sale.Domain.Entities
         public int? count { get; set; }
         public Guid? ProductId { get; set; }
         public Guid? PromotionId { get; set; }
+        public Guid? CartId { get; set; }
 
     }
 }

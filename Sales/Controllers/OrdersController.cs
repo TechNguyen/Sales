@@ -111,7 +111,7 @@ namespace Sales.Controllers
 
 			try
 			{
-				var data = _ordersService.FindBy(x => x.Id == id).FirstOrDefault();
+				var data = _ordersService.GetById(id);
 				if (data == null)
 				{
 					return StatusCode(StatusCodes.Status400BadRequest, new ResponseWithMessageDto
@@ -130,17 +130,23 @@ namespace Sales.Controllers
 					}
 					data.Status = status;
 					data.UpdatedDate = DateTime.Now;
-
+					data.Carts =  new List<Cart>();
+					var lstc = _ordersService.getByCartId(data.Id);
+	
 					if (status != OrdersConstant.DAHUY && status != OrdersConstant.THATBAI)
 					{
-                        //tru di count;
-                        foreach (var item in data.Carts)
-                        {
-							var dp = _productService.UpdateCountSold(item.ProductId.Value,item.count.Value);
+						//tru di count;
+
+						if (data.Carts != null)
+						{
+                            foreach (var item in data.Carts)
+                            {
+                                var dp = _productService.UpdateCountSold(item.ProductId.Value, item.count.Value);
+                            }
                         }
 					}
 					await _ordersService.Update(data);
-					return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<Orders>
+					return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<dynamic>
 					{
 						Data = data,
 						Status = StatusConstant.SUCCESS,
