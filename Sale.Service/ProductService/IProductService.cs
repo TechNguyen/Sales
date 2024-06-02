@@ -19,5 +19,6 @@ namespace Sale.Service.ProductService
 
 
 		bool UpdateCountSold(Guid ProductId,int count);
+        bool UpdateFaildCountSold(Guid ProductId, int count);
     }
 }

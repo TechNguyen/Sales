@@ -145,6 +145,16 @@ namespace Sales.Controllers
                             }
                         }
 					}
+					else
+					{
+						if (data.Carts != null)
+						{
+                            foreach (var item in data.Carts)
+                            {
+                                var dp = _productService.UpdateFaildCountSold(item.ProductId.Value, item.count.Value);
+                            }
+                        }
+					}
 					await _ordersService.Update(data);
 					return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<dynamic>
 					{

@@ -115,6 +115,19 @@ namespace Sale.Service.ProductService
 			var check = _context.SaveChanges();
 			return check > 0 ? true : false;
 		}
+
+
+        public bool UpdateFaildCountSold(Guid ProductId, int count)
+        {
+            var pro = _context.Products.Where(x => x.Id == ProductId).FirstOrDefault();
+            var productSold = (pro.ProductSold == null ? 0 : pro.ProductSold) - count;
+            pro.ProductSold = productSold;
+            var productQuanlity = (pro.ProductQuanlity == null ? 0 : pro.ProductSold) + count;
+            pro.ProductQuanlity = productQuanlity;
+            var check = _context.SaveChanges();
+            return check > 0 ? true : false;
+        }
+
         public List<ProductDto>? GetBestSaleProduct()
 		{
 			try
