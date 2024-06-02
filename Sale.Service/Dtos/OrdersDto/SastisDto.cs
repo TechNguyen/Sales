@@ -18,6 +18,10 @@ namespace Sale.Service.Dtos.OrdersDto
 
         public List<KeyValuePair<string, int>> listBranch  { get; set;}
 
+
+        public List<KeyValuePair<string, int>> listOrders { get; set; }
+        
+
         public int? dataCountBranchs { get; set; }
 
         public int? dataCountOrigins { get; set; }

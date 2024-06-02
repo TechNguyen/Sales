@@ -48,6 +48,7 @@ namespace Sale.Service.SastisService
 
 			sastis.countProductSold = context.Products.Where(x => x.ProductSold != null).Sum(x => x.ProductSold);
 
+			sastis.listOrders = context.Products.AsQueryable().Select(x => new KeyValuePair<string,int>(x.ProductName,x.ProductSold.HasValue ? x.ProductSold.Value : 0)).ToList();
 
             sastis.totalByMonth = context.Orders.Where(t => t.Status == OrdersConstant.THANHCONG && t.CreatedDate.Year == DateTime.Now.Year && t.CreatedDate.Month == DateTime.Now.Month).Sum(t => t.totalPrice);
 			if (context.Orders.Where(t => t.Status == OrdersConstant.THANHCONG && t.CreatedDate.Year == DateTime.Now.Year - 1).Sum(t => t.totalPrice) > 0)

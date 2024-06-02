@@ -152,11 +152,11 @@ namespace Sales.Controllers
 		/// <returns></returns>
 		[HttpPut("Edit")]
 		[Authorize(Roles = "Admin")]
-		public async Task<IActionResult> Edit([FromBody] EditVM entity, [FromQuery] Guid id)
+		public async Task<IActionResult> Edit([FromBody] EditVM entity)
 		{
 			try
 			{
-				var data = _productService.GetById(id);
+				var data = _productService.GetById(entity.id);
 				if (data == null)
 				{
 					return StatusCode(StatusCodes.Status400BadRequest, new ResponseWithMessageDto

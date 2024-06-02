@@ -2,6 +2,8 @@
 {
 	public class EditVM
 	{
+
+		public Guid id { get; set; }
 		public Guid? BranchId { get; set; }
 		public string? CategoryId { get; set; }
 		public Guid? OriginId { get; set; }
