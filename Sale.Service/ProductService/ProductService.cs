@@ -96,7 +96,25 @@ namespace Sale.Service.ProductService
 			}
 		}
 
-		public List<ProductDto>? GetBestSaleProduct()
+
+
+		
+		public int? countProduct(Guid ProductId)
+		{
+			var c = _context.Products.Where(x => x.Id == ProductId).FirstOrDefault().ProductQuanlity;
+			return c != null ? c : 0;
+		}
+
+
+		public bool UpdateCountSold(Guid ProductId, int count)
+		{
+			var pro = _context.Products.Where(x => x.Id == ProductId).FirstOrDefault();
+			pro.ProductSold = pro.ProductSold + count;
+			pro.ProductQuanlity = pro.ProductQuanlity - count;
+			var check = _context.SaveChanges();
+			return check > 0 ? true : false;
+		}
+        public List<ProductDto>? GetBestSaleProduct()
 		{
 			try
 			{

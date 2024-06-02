@@ -40,13 +40,31 @@ namespace Sales.Controllers
 				var obj = new Orders();
 				obj = _mapper.Map<Orders>(entity);
 				obj.CreatedDate = DateTime.Now;
+
+
+				if (entity.Carts != null && entity.Carts.Count > 0)
+				{
+                    foreach (var item in entity.Carts)
+                    {
+						var qP = _productService.countProduct(item.ProductId.Value);
+                        if (item.count >  qP)
+                        {
+							return StatusCode(StatusCodes.Status400BadRequest, new ResponseWithMessageDto
+							{
+								Message = "Không đủ số lượng hàng",
+								Status = StatusConstant.ERROR,
+								Code = 400
+							});
+						}
+                    }
+                }
 				//xử lý upload
 				await _ordersService.Create(obj);
 				return StatusCode(StatusCodes.Status201Created, new ResponseWithDataDto<Orders>
 				{
 					Data = obj,
 					Status = StatusConstant.SUCCESS,
-					Message = "Thêm mới thương hiệu thành công"
+					Message = "Thêm mới order thành công"
 				});
 			}
 			catch (Exception ex)
@@ -112,6 +130,15 @@ namespace Sales.Controllers
 					}
 					data.Status = status;
 					data.UpdatedDate = DateTime.Now;
+
+					if (status != OrdersConstant.DAHUY && status != OrdersConstant.THATBAI)
+					{
+                        //tru di count;
+                        foreach (var item in data.Carts)
+                        {
+							var dp = _productService.UpdateCountSold(item.ProductId.Value,item.count.Value);
+                        }
+					}
 					await _ordersService.Update(data);
 					return StatusCode(StatusCodes.Status200OK, new ResponseWithDataDto<Orders>
 					{

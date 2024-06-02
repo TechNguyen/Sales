@@ -15,5 +15,9 @@ namespace Sale.Service.ProductService
 		Task<PageList<ProductDto>> GetDataByPage(ProductSearchDto searchDto);
 		ProductDetailDto? FindDetailProduct(Guid id);
 		List<ProductDto>? GetBestSaleProduct();
-	}
+        int? countProduct(Guid ProductId);
+
+
+		bool UpdateCountSold(Guid ProductId,int count);
+    }
 }
